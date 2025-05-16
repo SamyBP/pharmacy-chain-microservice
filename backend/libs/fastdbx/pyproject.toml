@@ -1,0 +1,22 @@
+[project]
+name = "fastdbx"
+version = "0.1.0"
+description = "A datasource with custom transaction management and reusable queries with SQLAlchemy"
+requires-python = ">=3.7"
+dependencies = [
+    "sqlalchemy>=2.0.40"
+]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+]
+authors = [
+    {name = "Beniamin Pintea"}
+]
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+
+[build-system]
+requires = ["setuptools>=80.7.0"]
+build-backend = "setuptools.build_meta"
