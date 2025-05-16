@@ -1,0 +1,12 @@
+[project]
+name = "jwt-guard"
+version = "0.1.0"
+description = "Out of the box JWT endpoints and route protection, with customizable token schema"
+requires-python = ">=3.7"
+dependencies = [
+    "fastdbx @ file://../fastdbx",
+    "fastapi>=0.115.12"
+]
+authors = [
+    {name = "Beniamin Pintea"}
+]
