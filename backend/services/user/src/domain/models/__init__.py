@@ -1,16 +1,27 @@
 from enum import Enum
 
 from fastdbx.core import BaseEntity
-from sqlalchemy import Column, Integer, String, Enum as SqlEnum
+from sqlalchemy import Column, Integer, String
 
 
-class Role(Enum):
+class BaseEnum(Enum):
+
+    @classmethod
+    def is_valid(cls, value: str) -> bool:
+        return value in cls.values()
+
+    @classmethod
+    def values(cls):
+        return set(map(lambda c: c.value, cls))
+
+
+class Role(BaseEnum):
     ADMIN = "ADMIN"
     MANAGER = "MANAGER"
     EMPLOYEE = "EMPLOYEE"
 
 
-class NotificationPreference(Enum):
+class NotificationPreference(BaseEnum):
     EMAIL = "EMAIL"
     SMS = "SMS"
 

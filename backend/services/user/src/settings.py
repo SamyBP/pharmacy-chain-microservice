@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 INVITE_VERIFICATION_CALLBACK_URL = os.getenv("FRONTEND_URL")
+TWILIO_SENDER_NO = os.getenv("TWILIO_SENDER_NO")
+TWILIO_SID = os.getenv("TWILIO_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 
 FASTDBX = {"ENGINE": {"URL": "sqlite:///user.db", "ECHO": True}, "CREATE_TABLES": True}
 

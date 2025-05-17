@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
-from fastdbx import Datasource
 
 from fastapi import FastAPI
+from fastdbx import Datasource
 from jwt_guard.api.routers import jwt_guard_router
 
 from src.api.routers import user_router
-import src.domain.models
 
 
 @asynccontextmanager
@@ -18,8 +17,3 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(jwt_guard_router, prefix="/api/auth")
 app.include_router(user_router)
-
-
-@app.get("/complete-account")
-def test_complete_account_callback_url(token: str):
-    return token

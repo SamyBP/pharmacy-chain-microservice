@@ -3,3 +3,4 @@ pyjwt
 bcrypt
 python-dotenv
 fastapi-mail
+twilio
