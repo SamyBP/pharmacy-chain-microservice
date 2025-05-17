@@ -18,25 +18,12 @@ async def invite_user(payload: InviteUserRequest, _ctrl: UserService = Depends(U
     verification_link = f"{INVITE_VERIFICATION_CALLBACK_URL}/complete-account?token={invite_token}"
     await _ctrl.send_invite_email(to=payload.email, verification_link=verification_link)
 
-    return {
-        "invite_token": invite_token,
-        "verification_link": verification_link
-    }
+    return {"message": f"An email was sent to {payload.email} for setting up the account"}
 
 
-@user_router.post("/invite/callback")
-def complete_registration(payload: CompleteRegistrationRequest):
-    try:
-        invite_token_claims = Jwt.decode(payload.invite_token)
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Invite token expired")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid invite token")
+@user_router.post("/invite/complete")
+def complete_registration(payload: CompleteRegistrationRequest, _ctrl: UserService = Depends(UserService)):
+    return _ctrl.register_user(payload)
 
-    hashed_pw = bcrypt.hashpw(payload.password.encode(), salt=bcrypt.gensalt()).decode()
 
-    return {
-        "invite_token_claims": invite_token_claims,
-        "hashed_pw": hashed_pw,
-        "phone_number": payload.phone_number
-    }
+

@@ -18,3 +18,8 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(jwt_guard_router, prefix="/api/auth")
 app.include_router(user_router)
+
+
+@app.get("/complete-account")
+def test_complete_account_callback_url(token: str):
+    return token
