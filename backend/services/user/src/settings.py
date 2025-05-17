@@ -6,13 +6,7 @@ load_dotenv()
 
 INVITE_VERIFICATION_CALLBACK_URL = os.getenv("FRONTEND_URL")
 
-FASTDBX = {
-    "ENGINE": {
-        "URL": "sqlite:///user.db",
-        "ECHO": True
-    },
-    "CREATE_TABLES": True
-}
+FASTDBX = {"ENGINE": {"URL": "sqlite:///user.db", "ECHO": True}, "CREATE_TABLES": True}
 
 JWT_GUARD = {
     "MODEL": {
@@ -20,12 +14,13 @@ JWT_GUARD = {
         "USERNAME_FIELD": "email",
         "PASSWORD_FIELD": "password",
     },
-    "JWT": {
-        "SECRET_KEY": os.getenv("JWT_SECRET_KEY"),
-        "CLAIMS": ('id', 'role')
-    }
+    "JWT": {"SECRET_KEY": os.getenv("JWT_SECRET_KEY"), "CLAIMS": ("id", "role")},
 }
 
-
-
-
+SMTP = {
+    "MAIL_SERVER": "smtp.sendgrid.net",
+    "MAIL_PORT": 587,
+    "MAIL_USERNAME": os.getenv("SMTP_EMAIL_USERNAME"),
+    "MAIL_PASSWORD": os.getenv("SMTP_EMAIL_PASSWORD"),
+    "MAIL_FROM": os.getenv("SMTP_EMAIL_FROM"),
+}

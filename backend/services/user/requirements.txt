@@ -1,4 +1,5 @@
-fastapi
+fastapi[standard]
 pyjwt
 bcrypt
 python-dotenv
+fastapi-mail

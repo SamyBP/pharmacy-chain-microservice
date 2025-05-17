@@ -7,6 +7,11 @@ class InviteUserRequest(BaseModel):
     role: str
 
 
+class InviteNotificationDto(BaseModel):
+    email: str
+    verification_link: str
+
+
 class CompleteRegistrationRequest(BaseModel):
     invite_token: str
     password: str

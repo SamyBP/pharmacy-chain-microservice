@@ -6,15 +6,18 @@ from jwt_guard.security.auth_bearer import JWTBearer
 
 from src.api.security import IsUserOfTypeAdmin
 from src.domain.dtos.invite_user import InviteUserRequest, CompleteRegistrationRequest
+from src.service.user_service import UserService
 from src.settings import INVITE_VERIFICATION_CALLBACK_URL
 
 user_router = APIRouter(prefix="/api/users")
 
 
 @user_router.post("/invite", dependencies=[Depends(JWTBearer(authorize=IsUserOfTypeAdmin()))])
-def invite_user(payload: InviteUserRequest):
+async def invite_user(payload: InviteUserRequest, _ctrl: UserService = Depends(UserService)):
     invite_token = Jwt.encode(payload.model_dump())
     verification_link = f"{INVITE_VERIFICATION_CALLBACK_URL}/complete-account?token={invite_token}"
+    await _ctrl.send_invite_email(to=payload.email, verification_link=verification_link)
+
     return {
         "invite_token": invite_token,
         "verification_link": verification_link
