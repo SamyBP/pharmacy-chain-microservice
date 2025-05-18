@@ -19,6 +19,9 @@ class Pharmacy(BaseEntity):
     inventories: Mapped[list["Inventory"]] = relationship(back_populates="pharmacy")
     employees: Mapped[list["PharmacyEmployee"]] = relationship(back_populates="pharmacy")
 
+    def is_known_employee(self, employee_id) -> bool:
+        return any([e.employee_id for e in self.employees if e.employee_id == employee_id])
+
 
 class Sale(BaseEntity):
     __tablename__ = 'sale'
@@ -50,7 +53,7 @@ class Inventory(BaseEntity):
     __tablename__ = "inventory"
 
     id: int = Column(Integer, primary_key=True)
-    quantity: int = Column(Integer, CheckConstraint("quantity > 0"))
+    quantity: int = Column(Integer, CheckConstraint("quantity >= 0"))
     expiration_date: datetime = Column(DateTime, CheckConstraint("expiration_date > CURRENT_TIMESTAMP"), index=True)
     medication_id: int = Column(Integer, nullable=False, index=True)
 

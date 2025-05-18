@@ -1,4 +1,3 @@
-import logging
 from typing import Any
 
 from pydantic import BaseModel
@@ -14,8 +13,6 @@ class MedicationImageDto(BaseModel):
     image_url: str
     alt_text: str
 
-logger = logging.getLogger("uvicorn.error")
-
 
 class MedicationDto(BaseModel):
     id: int
@@ -26,11 +23,10 @@ class MedicationDto(BaseModel):
 
     @staticmethod
     def from_json(json: dict[str, Any]) -> "MedicationDto":
-        logger.info(json)
         return MedicationDto(
             id=json.get("id"),
             name=json.get("name"),
-            description=json.get("description"),  # <-- fixed typo here
+            description=json.get("description"),
             manufacturer=MedicationManufacturerDto(**json.get('manufacturer')),
             images=[MedicationImageDto(**im) for im in json.get('images')]
         )

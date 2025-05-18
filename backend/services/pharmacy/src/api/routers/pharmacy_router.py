@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from src.domain.dtos.medication import MedicationDto
 from src.domain.dtos.pharmacy import PharmacyDto
-from src.service.pharamcy_service import PharmacyService
+from src.service.pharmacy_service import PharmacyService
 
 pharmacy_router = APIRouter()
 

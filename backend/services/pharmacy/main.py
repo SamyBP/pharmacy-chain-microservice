@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastdbx.core import Datasource
 from src.api.routers.pharmacy_router import pharmacy_router
+from src.api.routers.pharmacy_employee_router import pharmacy_employee_router
 import src.domain.models
 
 
@@ -17,6 +18,7 @@ async def lifespan(fastapi: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(pharmacy_router, prefix="/api/pharmacies")
+app.include_router(pharmacy_employee_router, prefix="/api/pharmacies")
 
 
 @app.exception_handler(httpx.HTTPError)
