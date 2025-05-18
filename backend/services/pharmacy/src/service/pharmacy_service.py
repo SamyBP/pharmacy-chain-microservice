@@ -1,9 +1,11 @@
+import logging
 from decimal import Decimal
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastdbx.transactions.meta import transactional
 from sqlalchemy.exc import SQLAlchemyError
 
+from src.domain.dtos.inventory import UpdateInventoryRequest
 from src.domain.dtos.medication import MedicationDto
 from src.domain.dtos.pharmacy import PharmacyDto
 from src.domain.dtos.sale import SaleItemDto
@@ -17,15 +19,17 @@ from src.repository.pharmacy_repo import PharmacyRepository
 from src.repository.sale_repo import SaleRepository
 from src.service.medication_api_client import MedicationApiClient
 
+logger = logging.getLogger("uvicorn.error")
+
 
 class PharmacyService:
 
     def __init__(
-        self,
-        inventory_repo: InventoryRepository = Depends(InventoryRepository),
-        pharmacy_repo: PharmacyRepository = Depends(PharmacyRepository),
-        sale_repo: SaleRepository = Depends(SaleRepository),
-        medication_api_client: MedicationApiClient = Depends(MedicationApiClient),
+            self,
+            inventory_repo: InventoryRepository = Depends(InventoryRepository),
+            pharmacy_repo: PharmacyRepository = Depends(PharmacyRepository),
+            sale_repo: SaleRepository = Depends(SaleRepository),
+            medication_api_client: MedicationApiClient = Depends(MedicationApiClient),
     ):
         self.inventory_repo = inventory_repo
         self.pharmacy_repo = pharmacy_repo
@@ -53,11 +57,13 @@ class PharmacyService:
 
     @transactional()
     def get_medications_from_pharmacy(
-        self, pharmacy_id: int, *, employee_id: int
+            self, pharmacy_id: int, *, employee_id: int
     ) -> list[MedicationDto]:
         medication_ids = [
             i.medication_id
-            for i in self.inventory_repo.find_by_pharmacy_employee_id(pharmacy_id, employee_id)
+            for i in self.inventory_repo.find_by_pharmacy_employee_id(
+                pharmacy_id, employee_id
+            )
         ]
         return self.medication_api_client.get_medications_by_id(
             ids=medication_ids, use_mock=True
@@ -65,14 +71,14 @@ class PharmacyService:
 
     @transactional(
         rollback_for=(
-            InsufficientInventoryException,
-            SQLAlchemyError,
-            UnknownEmployeeException,
-            Exception
+                InsufficientInventoryException,
+                SQLAlchemyError,
+                UnknownEmployeeException,
+                Exception,
         )
     )
     def place_sale_at_pharmacy(
-        self, employee_id: int, pharmacy_id: int, items: list[SaleItemDto]
+            self, employee_id: int, pharmacy_id: int, items: list[SaleItemDto]
     ):
         sold_items: list[SaleItem] = []
         total_amount = Decimal(0)
@@ -98,7 +104,11 @@ class PharmacyService:
 
             total_amount += Decimal(item.unit_price) * item.quantity
             sold_items.append(
-                SaleItem(medication_id=item.medication_id, quantity=item.quantity, unit_price=item.unit_price)
+                SaleItem(
+                    medication_id=item.medication_id,
+                    quantity=item.quantity,
+                    unit_price=item.unit_price,
+                )
             )
 
         self.sale_repo.save(
@@ -106,6 +116,42 @@ class PharmacyService:
                 total_amount=total_amount,
                 employee_id=employee_id,
                 pharmacy_id=pharmacy_id,
-                sale_items=sold_items
+                sale_items=sold_items,
             )
         )
+
+    @transactional(rollback_for=(UnknownEmployeeException, SQLAlchemyError))
+    def update_pharmacy_inventory(
+            self, pharmacy_id, employee_id, payload: UpdateInventoryRequest
+    ):
+        inventory = self.inventory_repo.find_by_pharmacy_and_medication(
+            pharmacy_id, medication_id=payload.medication_id
+        )
+
+        if inventory is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No inventory for {payload.medication_id} at {pharmacy_id}"
+            )
+
+        if not inventory.pharmacy.is_known_employee(employee_id):
+            raise UnknownEmployeeException(
+                detail=f"Employee {employee_id} is can not perform inventory updates at pharmacy {pharmacy_id}"
+            )
+
+        attrs_to_update = {}
+
+        if payload.quantity is not None:
+            attrs_to_update['quantity'] = payload.quantity
+
+        if payload.expiration_date is not None:
+            attrs_to_update['expiration_date'] = payload.quantity
+
+        if not attrs_to_update:
+            raise HTTPException(
+                status_code=400,
+                detail="At least one of 'quantity' or 'expiration_date' must be provided."
+            )
+
+        logger.info(attrs_to_update)
+        self.inventory_repo.save(inventory, **attrs_to_update)
