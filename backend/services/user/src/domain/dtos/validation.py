@@ -23,4 +23,3 @@ def is_notification_preference_valid(value: str) -> str:
             f"Notification preference must be one of: {', '.join(NotificationPreference.values())} "
         )
     return value
-

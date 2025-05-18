@@ -1,21 +1,29 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
-
-from db import Database
-from services.pharmacy_service import PharmacyService
-import context
+import httpx
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastdbx.core import Datasource
+from src.api.routers.pharmacy_router import pharmacy_router
+import src.domain.models
 
 
 @asynccontextmanager
 async def lifespan(fastapi: FastAPI):
-    Database.create_tables()
+    Datasource.instance().startup()
     yield
 
 
 app = FastAPI(lifespan=lifespan)
 
+app.include_router(pharmacy_router, prefix="/api/pharmacies")
 
-@app.get("/")
-async def root(pharmacy_service: PharmacyService = Depends(context.get_pharmacy_service)):
-    return pharmacy_service.get_all_pharmacies()
+
+@app.exception_handler(httpx.HTTPError)
+def handle_http_error(request: Request, e: httpx.HTTPError):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": f'Error making request at: {e.request.url}'
+        }
+    )

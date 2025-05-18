@@ -12,7 +12,6 @@ async def lifespan(fastapi: FastAPI):
     Datasource.instance().startup()
     yield
 
-
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(jwt_guard_router, prefix="/api/auth")

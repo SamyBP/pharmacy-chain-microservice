@@ -74,4 +74,8 @@ async def delete_user_account(id: int, _ctrl: UserService = Depends(UserService)
 async def update_user(
     id: int, payload: UpdateUserRequest, _ctrl: UserService = Depends(UserService)
 ):
-    return _ctrl.update_user_by_id(id, payload)
+    updated_user = _ctrl.update_user_by_id(id, payload)
+    await _ctrl.notify_user(
+        user=updated_user, action=NotificationAction.ACCOUNT_UPDATED
+    )
+    return updated_user
