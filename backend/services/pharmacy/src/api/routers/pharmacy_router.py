@@ -6,7 +6,7 @@ from src.service.pharmacy_service import PharmacyService
 pharmacy_router = APIRouter()
 
 
-@pharmacy_router.get("/{medication_id}", response_model=list[PharmacyDto])
+@pharmacy_router.get("/medications/{medication_id}", response_model=list[PharmacyDto])
 def get_pharmacies_containing_medication(medication_id: int, _ctrl: PharmacyService = Depends(PharmacyService)):
     return _ctrl.get_pharmacies_for_medication(medication_id)
 

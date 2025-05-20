@@ -1,29 +1,32 @@
+import random
+
 import httpx
 
-from src.settings import MEDICATION_SERVICE_BASE_URL
 from src.domain.dtos.medication import MedicationDto
+from src.domain.internal.medication_client import MedicationClient
+from src.settings import MEDICATION_SERVICE_BASE_URL
 
 
-class MedicationApiClient:
+class MedicationApiClient(MedicationClient):
     def __init__(self):
         self.client = httpx.Client(base_url=MEDICATION_SERVICE_BASE_URL)
 
     def __call__(self, *args, **kwargs):
         return MedicationApiClient()
 
-    def get_medications_by_id(self, ids: list[int], use_mock: bool = False) -> list[MedicationDto]:
-        # To be deleted
-        if use_mock:
-            return self._get_mock_medications_by_id(ids)
-
+    def get_medications_by_ids(self, ids: list[int]) -> list[MedicationDto]:
+        if not ids:
+            return []
         query_params = {"ids": ','.join(map(str, ids))}
         response = self.client.get("/medications", params=query_params)
         response.raise_for_status()
         data = response.json()
         return [MedicationDto.from_json(json) for json in data]
 
-    def _get_mock_medications_by_id(self, ids: list[int]) -> list[MedicationDto]:
 
+class MockMedicationApiClient(MedicationClient):
+
+    def get_medications_by_ids(self, ids: list[int]) -> list[MedicationDto]:
         def mock_medication_generator(id: int) -> dict:
             return {
                 "id": id,
@@ -35,15 +38,11 @@ class MedicationApiClient:
                 },
                 "images": [
                     {
-                        "id": 1,
-                        "image_url": "url1",
-                        "alt_text": "alt1"
-                    },
-                    {
-                        "id": 2,
-                        "image_url": "url1",
-                        "alt_text": "alt1"
+                        "id": i,
+                        "image_url": f"url_{i}",
+                        "alt_text": f"alt_{i}"
                     }
+                    for i in range(1, random.randint(1, 3) + 1)
                 ]
             }
 

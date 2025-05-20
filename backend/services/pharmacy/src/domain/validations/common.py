@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def is_positive_integer(value: int) -> int:
@@ -8,6 +8,6 @@ def is_positive_integer(value: int) -> int:
 
 
 def is_future_date(value: datetime) -> datetime:
-    if value is not None and value <= datetime.now():
+    if value is not None and value <= datetime.now(timezone.utc):
         raise ValueError("Date must be in the future.")
     return value

@@ -5,7 +5,9 @@ from src.api.security.permissions import IsUserOfTypeEmployee
 from src.domain.dtos.inventory import UpdateInventoryRequest
 from src.domain.dtos.medication import MedicationDto
 from src.domain.dtos.sale import MedicationSaleRequest
+from src.service.inventory_service import InventoryService
 from src.service.pharmacy_service import PharmacyService
+from src.service.sale_service import SaleService
 
 pharmacy_employee_router = APIRouter(
     dependencies=[Depends(JWTBearer(authorize=IsUserOfTypeEmployee()))],
@@ -13,7 +15,6 @@ pharmacy_employee_router = APIRouter(
 )
 
 
-# TODO retrieve the rampancy_id from request url
 @pharmacy_employee_router.get(
     "/{pharmacy_id}/medications", response_model=list[MedicationDto]
 )
@@ -31,7 +32,7 @@ def perform_medication_sale(
     request: Request,
     pharmacy_id: int,
     payload: MedicationSaleRequest,
-    _ctrl: PharmacyService = Depends(PharmacyService),
+    _ctrl: SaleService = Depends(SaleService),
 ):
     employee_id = request.state.auth.id
     _ctrl.place_sale_at_pharmacy(employee_id, pharmacy_id, items=payload.sale_items)
@@ -43,7 +44,7 @@ def update_inventory(
     request: Request,
     pharmacy_id: int,
     payload: UpdateInventoryRequest,
-    _ctrl: PharmacyService = Depends(PharmacyService),
+    _ctrl: InventoryService = Depends(InventoryService),
 ):
     employee_id = request.state.auth.id
     _ctrl.update_pharmacy_inventory(pharmacy_id, employee_id, payload)
