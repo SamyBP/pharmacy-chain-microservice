@@ -5,5 +5,6 @@ __all__ = [
     "Datasource",
     "CrudRepository",
     "TransactionalMetaclass",
-    "TransactionManager"
+    "TransactionManager",
+    "transactional"
 ]

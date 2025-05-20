@@ -7,11 +7,15 @@ from fastdbx.transactions.manager import TransactionManager
 _transactional_method_prefixes = ("save", "update", "delete")
 
 
-def _should_decorate_transactional(name: str, prefixes=_transactional_method_prefixes) -> bool:
+def _should_decorate_transactional(
+    name: str, prefixes=_transactional_method_prefixes
+) -> bool:
     return any(name.startswith(p) for p in prefixes)
 
 
-def transactional(rollback_for: Union[type[Exception], tuple[type[Exception]], None] = None):
+def transactional(
+    rollback_for: Union[type[Exception], tuple[type[Exception]], None] = None,
+):
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):

@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 class TransactionManager:
 
     def __init__(
-            self,
-            session: Session,
-            rollback_for: Union[type[Exception], tuple[type[Exception]], None] = None
+        self,
+        session: Session,
+        rollback_for: Union[type[Exception], tuple[type[Exception]], None] = None,
     ):
         self.session = session
         self.rollback_for = rollback_for

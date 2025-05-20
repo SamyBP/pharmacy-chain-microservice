@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import TypeVar, Generic, Optional
 
 from sqlalchemy import select, delete
@@ -9,7 +10,26 @@ from fastdbx.core.model import BaseEntity
 T = TypeVar("T", bound=BaseEntity)
 
 
-class CrudRepository(Generic[T]):
+class AbstractRepository(Generic[T]):
+
+    @abstractmethod
+    def find_all(self) -> list[T]:
+        pass
+
+    @abstractmethod
+    def find_by_id(self, id: int) -> Optional[T]:
+        pass
+
+    @abstractmethod
+    def save(self, instance: T, **data) -> T:
+        pass
+
+    @abstractmethod
+    def delete_by_id(self, id: int) -> bool:
+        pass
+
+
+class CrudRepository(AbstractRepository[T]):
 
     def __init__(self, entity: T):
         self._datasource = Datasource.instance()
@@ -41,7 +61,9 @@ class CrudRepository(Generic[T]):
             if hasattr(instance, key):
                 setattr(instance, key, value)
             else:
-                raise AttributeError(f"{type(instance).__name__} has no attribute: {key}")
+                raise AttributeError(
+                    f"{type(instance).__name__} has no attribute: {key}"
+                )
 
         self.session.flush()
         return instance
