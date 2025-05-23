@@ -1,11 +1,12 @@
 import logging
 from decimal import Decimal
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from fastdbx.transactions.meta import transactional
 from sqlalchemy.exc import SQLAlchemyError
 
 from src.domain.dtos.sale import SaleItemDto, MostSoldMedicationDto, SaleTrendDto
+from src.domain.internal.abstracts import AbstractInventoryRepository, AbstractSaleRepository
 from src.domain.internal.medication_client import MedicationClient
 from src.domain.models import SaleItem, Sale
 from src.domain.validations.exceptions import (
@@ -23,8 +24,8 @@ class SaleService:
 
     def __init__(
         self,
-        inventory_repo: InventoryRepository = Depends(InventoryRepository),
-        sale_repo: SaleRepository = Depends(SaleRepository),
+        inventory_repo: AbstractInventoryRepository = Depends(InventoryRepository),
+        sale_repo: AbstractSaleRepository = Depends(SaleRepository),
         medication_client: MedicationClient = Depends(MockMedicationApiClient),
     ):
         self.inventory_repo = inventory_repo

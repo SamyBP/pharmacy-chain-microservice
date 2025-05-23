@@ -5,6 +5,8 @@ from fastdbx.transactions.meta import transactional
 
 from src.domain.dtos.medication import MedicationDto
 from src.domain.dtos.pharmacy import PharmacyDto
+from src.domain.internal.abstracts import AbstractInventoryRepository, AbstractPharmacyRepository, \
+    AbstractSaleRepository
 from src.domain.internal.medication_client import MedicationClient
 from src.repository.inventory_repo import InventoryRepository
 from src.repository.pharmacy_repo import PharmacyRepository
@@ -18,9 +20,9 @@ class PharmacyService:
 
     def __init__(
         self,
-        inventory_repo: InventoryRepository = Depends(InventoryRepository),
-        pharmacy_repo: PharmacyRepository = Depends(PharmacyRepository),
-        sale_repo: SaleRepository = Depends(SaleRepository),
+        inventory_repo: AbstractInventoryRepository = Depends(InventoryRepository),
+        pharmacy_repo: AbstractPharmacyRepository = Depends(PharmacyRepository),
+        sale_repo: AbstractSaleRepository = Depends(SaleRepository),
         medication_client: MedicationClient = Depends(MockMedicationApiClient),
     ):
         self.inventory_repo = inventory_repo

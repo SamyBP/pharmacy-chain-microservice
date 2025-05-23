@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastdbx import Datasource
 
-from src.api.medication_router import medication_router
+from src.api.routers.medication_router import medication_router
 
 load_dotenv()
 
@@ -17,7 +17,7 @@ async def lifespan(fastapi: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(medication_router)
+app.include_router(medication_router, prefix="api/medications")
 
 
 

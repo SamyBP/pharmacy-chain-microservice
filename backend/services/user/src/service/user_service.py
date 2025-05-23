@@ -8,6 +8,7 @@ from jwt_guard.core.jwt import Jwt
 
 from src.domain.dtos.invite_user import CompleteRegistrationRequest
 from src.domain.dtos.user import UserOut, UpdateUserRequest
+from src.domain.internal.abstracts import AbstractUserRepository
 from src.domain.models import User, Role
 from src.repository.user_repo import UserRepository
 from src.service.notification import EmailNotification, NotificationAction, Notification
@@ -15,7 +16,7 @@ from src.service.notification import EmailNotification, NotificationAction, Noti
 
 class UserService:
 
-    def __init__(self, user_repo: UserRepository = Depends(UserRepository)):
+    def __init__(self, user_repo: AbstractUserRepository = Depends(UserRepository)):
         self.user_repo = user_repo
 
     def __call__(self, *args, **kwargs):
@@ -54,7 +55,9 @@ class UserService:
         user_to_delete = self.user_repo.find_by_id(id)
 
         if user_to_delete is None:
-            raise HTTPException(status_code=400, detail=f"No user with id: {id} was found")
+            raise HTTPException(
+                status_code=400, detail=f"No user with id: {id} was found"
+            )
 
         is_deleted = self.user_repo.delete_by_id(id)
         assert is_deleted
@@ -66,18 +69,20 @@ class UserService:
         user_to_update = self.user_repo.find_by_id(id)
 
         if user_to_update is None:
-            raise HTTPException(status_code=400, detail=f"No user with id: {id} was found")
+            raise HTTPException(
+                status_code=400, detail=f"No user with id: {id} was found"
+            )
 
         attrs_to_update = dict()
 
         if payload.phone_number is not None:
-            attrs_to_update['phone_number'] = payload.phone_number
+            attrs_to_update["phone_number"] = payload.phone_number
 
         if payload.role is not None:
-            attrs_to_update['role'] = payload.role
+            attrs_to_update["role"] = payload.role
 
         if payload.notification_preference is not None:
-            attrs_to_update['notification_preference'] = payload.notification_preference
+            attrs_to_update["notification_preference"] = payload.notification_preference
 
         updated_user = self.user_repo.save(user_to_update, **attrs_to_update)
         return UserOut.model_validate(updated_user)

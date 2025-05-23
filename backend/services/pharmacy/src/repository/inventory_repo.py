@@ -1,11 +1,12 @@
 from fastdbx.core import CrudRepository
 from sqlalchemy import select
 
+from src.domain.internal.abstracts import AbstractInventoryRepository
 from src.domain.models import Inventory, Pharmacy, PharmacyEmployee
 from datetime import datetime
 
 
-class InventoryRepository(CrudRepository[Inventory]):
+class InventoryRepository(AbstractInventoryRepository, CrudRepository[Inventory]):
     def __init__(self):
         super().__init__(Inventory)
 

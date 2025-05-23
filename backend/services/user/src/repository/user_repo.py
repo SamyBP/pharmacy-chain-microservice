@@ -1,10 +1,11 @@
 from fastdbx.core import CrudRepository
 from sqlalchemy import select
 
+from src.domain.internal.abstracts import AbstractUserRepository
 from src.domain.models import User
 
 
-class UserRepository(CrudRepository[User]):
+class UserRepository(AbstractUserRepository, CrudRepository):
 
     def __init__(self):
         super().__init__(User)

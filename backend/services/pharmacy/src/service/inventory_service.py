@@ -3,6 +3,7 @@ from fastdbx.transactions.meta import transactional
 from sqlalchemy.exc import SQLAlchemyError
 
 from src.domain.dtos.inventory import RegisterInventoryRequest, UpdateInventoryRequest
+from src.domain.internal.abstracts import AbstractInventoryRepository
 from src.domain.models import Inventory
 from src.domain.validations.exceptions import UnknownEmployeeException
 from src.repository.inventory_repo import InventoryRepository
@@ -11,7 +12,7 @@ from src.repository.inventory_repo import InventoryRepository
 class InventoryService:
 
     def __init__(
-        self, inventory_repo: InventoryRepository = Depends(InventoryRepository)
+        self, inventory_repo: AbstractInventoryRepository = Depends(InventoryRepository)
     ):
         self.inventory_repo = inventory_repo
 

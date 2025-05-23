@@ -27,7 +27,7 @@ class NotificationAction(Enum):
 
         raise HTTPException(
             status_code=500,
-            detail=f"Wrong usage of notification action: {action.value}"
+            detail=f"Wrong usage of notification action: {action.value}",
         )
 
 
@@ -38,17 +38,25 @@ class Notification:
         pass
 
     @staticmethod
-    def create_for_user(user: UserOut) -> tuple[Optional["Notification"], Optional[str]]:
+    def create_for_user(
+        user: UserOut,
+    ) -> tuple[Optional["Notification"], Optional[str]]:
         if user.notification_preference is None:
             return None, None
 
-        if user.notification_preference == 'EMAIL':
-            return EmailNotification(template_name="email/generic-notification.html"), user.email
+        if user.notification_preference == "EMAIL":
+            return (
+                EmailNotification(template_name="email/generic-notification.html"),
+                user.email,
+            )
 
-        if user.notification_preference == 'SMS':
+        if user.notification_preference == "SMS":
             return SMSNotification(), user.phone_number
 
-        raise HTTPException(status_code=500, detail=f"Unknown notification preference {user.notification_preference}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unknown notification preference {user.notification_preference}",
+        )
 
 
 class EmailNotification(Notification):
@@ -59,16 +67,12 @@ class EmailNotification(Notification):
             MAIL_STARTTLS=True,
             MAIL_SSL_TLS=False,
             USE_CREDENTIALS=True,
-            TEMPLATE_FOLDER='src/domain/templates',
-            **SMTP
+            TEMPLATE_FOLDER="src/domain/templates",
+            **SMTP,
         )
 
     async def send(self, to: str, body: dict):
-        message = MessageSchema(
-            recipients=[to],
-            template_body=body,
-            subtype='html'
-        )
+        message = MessageSchema(recipients=[to], template_body=body, subtype="html")
 
         fm = FastMail(self.conf)
         await fm.send_message(message, template_name=self.template_name)
@@ -81,8 +85,4 @@ class SMSNotification(Notification):
         self.client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
 
     async def send(self, to: str, body: dict):
-        self.client.messages.create(
-            from_=self.sender,
-            to=to,
-            body=body.get("message")
-        )
+        self.client.messages.create(from_=self.sender, to=to, body=body.get("message"))
