@@ -27,3 +27,8 @@ class UpdateUserRequest(BaseModel):
     notification_preference: Annotated[
         Optional[str], AfterValidator(is_notification_preference_valid)
     ] = Field(default=None)
+
+
+class UserProfileDto(BaseModel):
+    info: UserOut
+    pharmacies: list[int]

@@ -25,3 +25,5 @@ JWT_GUARD = {
         "CLAIMS": ("id", "role")
     },
 }
+
+ALLOWED_INTERNAL_API_KEYS = {k for k in os.getenv("ALLOWED_INTERNAL_API_KEYS").split(",")}

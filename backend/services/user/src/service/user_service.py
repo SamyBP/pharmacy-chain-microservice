@@ -7,17 +7,24 @@ from fastdbx.transactions.meta import transactional
 from jwt_guard.core.jwt import Jwt
 
 from src.domain.dtos.invite_user import CompleteRegistrationRequest
-from src.domain.dtos.user import UserOut, UpdateUserRequest
+from src.domain.dtos.user import UserOut, UpdateUserRequest, UserProfileDto
 from src.domain.internal.abstracts import AbstractUserRepository
+from src.domain.internal.pharmacy_client import PharmacyClient
 from src.domain.models import User, Role
 from src.repository.user_repo import UserRepository
 from src.service.notification import EmailNotification, NotificationAction, Notification
+from src.service.pharmacy_api_client import MockPharmacyApiClient, PharmacyApiClient
 
 
 class UserService:
 
-    def __init__(self, user_repo: AbstractUserRepository = Depends(UserRepository)):
+    def __init__(
+        self,
+        user_repo: AbstractUserRepository = Depends(UserRepository),
+        pharmacy_client: PharmacyClient = Depends(PharmacyApiClient),
+    ):
         self.user_repo = user_repo
+        self.pharmacy_client = pharmacy_client
 
     def __call__(self, *args, **kwargs):
         return UserService()
@@ -113,3 +120,15 @@ class UserService:
         salt = bcrypt.gensalt()
         hashed_bytes = bcrypt.hashpw(plain.encode(), salt)
         return hashed_bytes.decode()
+
+    @transactional()
+    def get_user_profile_by_id(self, user_id: int, role: Role) -> UserProfileDto:
+        user = self.user_repo.find_by_id(user_id)
+        assert user is not None, "The user should exits, 401 returned by auth lib"
+
+        affiliated_pharmacies = self.pharmacy_client.get_pharmacies_by_user_and_role(user_id, role)
+
+        return UserProfileDto(
+            info=UserOut.model_validate(user),
+            pharmacies=affiliated_pharmacies
+        )

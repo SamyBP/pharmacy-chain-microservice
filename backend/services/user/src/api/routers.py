@@ -1,6 +1,7 @@
+import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from jwt_guard.core.jwt import Jwt
 from jwt_guard.security.auth_bearer import JWTBearer
 
@@ -10,7 +11,7 @@ from src.domain.dtos.invite_user import (
     CompleteRegistrationRequest,
     InviteUserSuccessResponse,
 )
-from src.domain.dtos.user import UserOut, UpdateUserRequest
+from src.domain.dtos.user import UserOut, UpdateUserRequest, UserProfileDto
 from src.service.notification import NotificationAction
 from src.service.user_service import UserService
 from src.settings import INVITE_VERIFICATION_CALLBACK_URL
@@ -79,3 +80,18 @@ async def update_user(
         user=updated_user, action=NotificationAction.ACCOUNT_UPDATED
     )
     return updated_user
+
+
+logger = logging.getLogger("uvicorn.error")
+
+
+@user_router.get(
+    "/profile", dependencies=[Depends(JWTBearer())], response_model=UserProfileDto
+)
+def get_authenticated_user_profile(
+    request: Request, _ctrl: UserService = Depends(UserService)
+):
+    user_id = request.state.auth.id
+    role = request.state.auth.role
+    logger.info(f"query params: {user_id =} {role =}")
+    return _ctrl.get_user_profile_by_id(user_id, role)

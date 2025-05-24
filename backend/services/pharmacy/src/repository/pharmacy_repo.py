@@ -2,7 +2,7 @@ from fastdbx.core import CrudRepository
 from sqlalchemy import select
 
 from src.domain.internal.abstracts import AbstractPharmacyRepository
-from src.domain.models import Pharmacy, Inventory
+from src.domain.models import Pharmacy, Inventory, PharmacyEmployee
 from datetime import datetime
 
 
@@ -29,3 +29,11 @@ class PharmacyRepository(AbstractPharmacyRepository, CrudRepository[Pharmacy]):
         )
 
         return self.session.scalars(statement).all()
+
+    def find_all_by_manager_id(self, manager_id: int) -> list[int]:
+        statement = select(Pharmacy.id).where(Pharmacy.manager_id == manager_id)
+        return self.session.execute(statement).scalars().all()
+
+    def find_all_by_employee_id(self, employee_id: int) -> list[int]:
+        statement = select(PharmacyEmployee.pharmacy_id).where(PharmacyEmployee.employee_id == employee_id)
+        return self.session.execute(statement).scalars().all()

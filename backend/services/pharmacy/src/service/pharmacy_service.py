@@ -5,8 +5,11 @@ from fastdbx.transactions.meta import transactional
 
 from src.domain.dtos.medication import MedicationDto
 from src.domain.dtos.pharmacy import PharmacyDto
-from src.domain.internal.abstracts import AbstractInventoryRepository, AbstractPharmacyRepository, \
-    AbstractSaleRepository
+from src.domain.internal.abstracts import (
+    AbstractInventoryRepository,
+    AbstractPharmacyRepository,
+    AbstractSaleRepository,
+)
 from src.domain.internal.medication_client import MedicationClient
 from src.repository.inventory_repo import InventoryRepository
 from src.repository.pharmacy_repo import PharmacyRepository
@@ -60,3 +63,12 @@ class PharmacyService:
             )
         ]
         return self.medication_client.get_medications_by_ids(ids=medication_ids)
+
+    @transactional()
+    def get_pharmacies_by_user_and_role(self, user_id: int, role: str) -> list[int]:
+        if role == "EMPLOYEE":
+            return self.pharmacy_repo.find_all_by_employee_id(employee_id=user_id)
+        if role == "MANAGER":
+            return self.pharmacy_repo.find_all_by_manager_id(manager_id=user_id)
+
+        return []

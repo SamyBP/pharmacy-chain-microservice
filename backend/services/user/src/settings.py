@@ -4,6 +4,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+PHARMACY_SERVICE_BASE_API_URL = os.getenv(
+    "PHARMACY_SERVICE_BASE_API_URL", "http://localhost:8000/api/pharmacies"
+)
+
+PHARMACY_SERVICE_API_KEY = os.getenv("PHARMACY_SERVICE_API_KEY")
+
 INVITE_VERIFICATION_CALLBACK_URL = os.getenv("FRONTEND_URL")
 TWILIO_SENDER_NO = os.getenv("TWILIO_SENDER_NO")
 TWILIO_SID = os.getenv("TWILIO_SID")

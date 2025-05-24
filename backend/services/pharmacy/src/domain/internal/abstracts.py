@@ -35,6 +35,15 @@ class AbstractPharmacyRepository(AbstractRepository[Pharmacy], ABC):
     ) -> list[Pharmacy]:
         pass
 
+    @abstractmethod
+    def find_all_by_manager_id(self, manager_id: int) -> list[int]:
+        pass
+
+    @abstractmethod
+    def find_all_by_employee_id(self, employee_id: int) -> list[int]:
+        pass
+
+
 
 class AbstractSaleRepository(AbstractRepository[Sale], ABC):
 
