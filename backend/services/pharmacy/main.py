@@ -14,6 +14,7 @@ import src.domain.models
 async def lifespan(fastapi: FastAPI):
     Datasource.instance().startup()
     yield
+    Datasource.instance().shutdown()
 
 
 app = FastAPI(lifespan=lifespan)

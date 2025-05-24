@@ -1,9 +1,13 @@
+import json
 from decimal import Decimal
 from typing import Annotated, Optional
 
-from pydantic import BaseModel, ConfigDict, AfterValidator, Field
+from fastapi import Form
+from pydantic import BaseModel, ConfigDict, AfterValidator, Field, ValidationError
 
-from src.domain.validations.common import is_positive_decimal
+from src.domain.validations.common import (
+    is_positive_decimal,
+)
 
 
 class MedicationManufacturerDto(BaseModel):
@@ -38,7 +42,20 @@ class CreateMedicationRequest(BaseModel):
     manufacturer_id: int
 
 
+def parse_json_payload(model_class):
+    def dependency(payload: Annotated[str, Form()]):
+        try:
+            data = json.loads(payload)
+            return model_class(**data)
+        except (json.JSONDecodeError, ValidationError) as e:
+            raise ValueError(f"Invalid payload format: {str(e)}")
+
+    return dependency
+
+
 class UpdateMedicationRequest(BaseModel):
     name: Optional[str] = Field(default=None)
     description: Optional[str] = Field(default=None)
-    purchase_price: Annotated[Optional[Decimal], AfterValidator(is_positive_decimal)]
+    purchase_price: Annotated[
+        Optional[Decimal], AfterValidator(is_positive_decimal)
+    ] = Field(default=None)

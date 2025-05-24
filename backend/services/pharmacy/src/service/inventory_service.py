@@ -59,7 +59,7 @@ class InventoryService:
             attrs_to_update["quantity"] = payload.quantity
 
         if payload.expiration_date is not None:
-            attrs_to_update["expiration_date"] = payload.quantity
+            attrs_to_update["expiration_date"] = payload.expiration_date
 
         if not attrs_to_update:
             raise HTTPException(
