@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MEDICATION_SERVICE_BASE_URL = os.getenv("MEDICATION_SERVICE_BASE_URL", "http://localhost:8001/api")
+MEDICATION_SERVICE_BASE_URL = os.getenv("MEDICATION_SERVICE_BASE_URL", "http://localhost:8002/api")
 
 FASTDBX = {
     "ENGINE": {

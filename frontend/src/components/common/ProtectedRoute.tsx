@@ -10,15 +10,24 @@ export interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedUserRoles }) => {
     const { auth, user } = useAuth()
     
+    console.log('ProtectedRoute - Auth:', auth)
+    console.log('ProtectedRoute - User:', user)
+    console.log('ProtectedRoute - Allowed roles:', allowedUserRoles)
+    
     if (!auth || !user) {
-        return <Navigate to='/'/>
+        console.log('No auth or user, redirecting to /')
+        return <Navigate to='/' replace />
     }
 
     const currentUnixTimestampInSeconds = Math.floor(Date.now() / 1000)
-
+    
     if (auth.expires_at <= currentUnixTimestampInSeconds) {
-        return <Navigate to='/'/>
+        console.log('Token expired, redirecting to /')
+        return <Navigate to='/' replace />
     }
 
-    return allowedUserRoles.includes(user.info.role) ? <Outlet /> : <Navigate to="/" />
+    const hasPermission = allowedUserRoles.includes(user.info.role)
+    console.log('User role:', user.info.role, 'Has permission:', hasPermission)
+    
+    return hasPermission ? <Outlet /> : <Navigate to="/" replace />
 }

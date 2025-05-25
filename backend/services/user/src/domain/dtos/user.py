@@ -15,6 +15,7 @@ class UserOut(BaseModel):
     phone_number: str
     role: str
     notification_preference: Optional[str]
+    name: str
 
     model_config = ConfigDict(from_attributes=True)
 

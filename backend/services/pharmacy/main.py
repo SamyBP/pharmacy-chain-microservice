@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from fastdbx.core import Datasource
 from src.api.routers.pharmacy_router import pharmacy_router
 from src.api.routers.pharmacy_employee_router import pharmacy_employee_router
@@ -24,6 +25,16 @@ app.include_router(pharmacy_router, prefix="/api/pharmacies")
 app.include_router(pharmacy_employee_router, prefix="/api/pharmacies/e")
 app.include_router(pharmacy_manager_router, prefix="/api/pharmacies/m")
 app.include_router(pharmacy_internal_router, prefix="/api/pharmacies/internal")
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.exception_handler(httpx.HTTPError)

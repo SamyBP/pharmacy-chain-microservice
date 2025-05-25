@@ -35,3 +35,4 @@ class User(BaseEntity):
     phone_number: str = Column(String(10), nullable=False)
     role: str = Column(String, nullable=False)
     notification_preference: str = Column(String, nullable=True)
+    name: str = Column(String, nullable=True)

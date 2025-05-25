@@ -23,7 +23,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(jwt_guard_router, prefix="/api/auth")
 app.include_router(user_router)
 
-origins = ["http://localhost:5173"]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

@@ -42,7 +42,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     try {
       const formData = {principal: email, password: password}
       const token = await userService.getAuthToken(formData)
-      const user = await userService.getUserProfile()
+      const user = await userService.getUserProfile(token.token)
       login(token, user)
       console.log(token)
     } catch (error: unknown) {
