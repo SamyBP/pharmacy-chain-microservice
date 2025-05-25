@@ -1,11 +1,11 @@
 import { Box, Card, CardContent, MenuItem, Select, Typography } from '@mui/material';
-import { HeroSection } from '../components/HeroSection';
-import { Section } from '../components/Section';
-import { ShufflingCards } from '../components/ShufflingCard';
 import React, { useState } from 'react';
-import { Header } from '../components/Header';
-import pharmacyImage00 from "../assets/images/pharmacy_00.jpg"
-import pharmacyImage01 from "../assets/images/pharmacy_01.jpg"
+import pharmacyImage00 from "@/assets/images/pharmacy_00.jpg";
+import pharmacyImage01 from "@/assets/images/pharmacy_01.jpg";
+import { HeroSection } from '@/components/hero/HeroSection';
+import { Section } from '@/components/hero/Section';
+import { CarousellSwitcher } from '@/components/animations/CarouselSwitcher';
+import { Header } from '@/components/header/Header';
 
 const managedPharmacies = [
   {
@@ -188,13 +188,13 @@ export default function LandingPage() {
         accessAccountButtonText={t.hero.account}
       />
       <Section title={t.managedPharmacies}>
-        <ShufflingCards>
+        <CarousellSwitcher>
           {managedPharmacies.map(p => createCard(p.title, p.location, p.contact, p.image))}
-        </ShufflingCards>
+        </CarousellSwitcher>
       </Section>
 
       <Section title={t.additionalInfo} backgroundColor="primary.main" color='light'>
-        <ShufflingCards
+        <CarousellSwitcher
           autoShuffle
           interval={5000}
         >
@@ -213,7 +213,7 @@ export default function LandingPage() {
               {info}
             </Typography>
           ))}
-        </ShufflingCards>
+        </CarousellSwitcher>
       </Section>
     </>
   );

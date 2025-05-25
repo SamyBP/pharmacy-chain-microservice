@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from fastdbx import Datasource
 from jwt_guard.api.routers import jwt_guard_router
 
@@ -21,6 +22,16 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(jwt_guard_router, prefix="/api/auth")
 app.include_router(user_router)
+
+origins = ["http://localhost:5173"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.exception_handler(httpx.HTTPStatusError)

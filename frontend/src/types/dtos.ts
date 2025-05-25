@@ -1,0 +1,27 @@
+import type { NotificationPreference, UserRole } from "./utils"
+
+export interface TokenDto {
+    token: string
+    expires_at: number
+}
+
+export interface ObtainTokenDto {
+    principal: string
+    password: string
+}
+
+
+export interface UserDto {
+    id: number
+    email: string
+    phone_number: string
+    role: UserRole
+    name: string
+    notification_preference: NotificationPreference
+}
+
+
+export interface UserProfile {
+    info: UserDto
+    pharmacies: number[]
+}

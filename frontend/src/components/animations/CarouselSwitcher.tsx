@@ -3,13 +3,13 @@ import { Fade, Box, IconButton } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-interface ShufflingCardsProps {
+interface CarousellSwitcherProps {
   children: React.ReactNode[];
   autoShuffle?: boolean;
   interval?: number;
 }
 
-export const ShufflingCards: React.FC<ShufflingCardsProps> = ({
+export const CarousellSwitcher: React.FC<CarousellSwitcherProps> = ({
   children,
   autoShuffle = false,
   interval = 10000,
