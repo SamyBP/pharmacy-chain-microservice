@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import CompleteAccount from "./pages/complete-account";
 import DiscoverMedications from "./pages/discover-medications";
 import ManagerLayout from "./components/layouts/ManagerLayout";
+import EmployeeLayout from "./components/layouts/EmployeeLayout";
 
 export default function App() {
   return (
@@ -26,6 +27,10 @@ export default function App() {
 
           <Route element={<ProtectedRoute allowedUserRoles={['MANAGER']} />} >
             <Route element={<ManagerLayout />} path="/manager" />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedUserRoles={['EMPLOYEE']} />} >
+            <Route element={<EmployeeLayout />} path="/employee" />
           </Route>
 
 

@@ -16,7 +16,7 @@ from src.domain.internal.syncs import AddEmployeeStrategy, AddManagerStrategy
 from src.repository.inventory_repo import InventoryRepository
 from src.repository.pharmacy_repo import PharmacyRepository
 from src.repository.sale_repo import SaleRepository
-from src.service.medication_api_client import MockMedicationApiClient
+from src.service.medication_api_client import MedicationApiClient
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -28,7 +28,7 @@ class PharmacyService:
             inventory_repo: AbstractInventoryRepository = Depends(InventoryRepository),
             pharmacy_repo: AbstractPharmacyRepository = Depends(PharmacyRepository),
             sale_repo: AbstractSaleRepository = Depends(SaleRepository),
-            medication_client: MedicationClient = Depends(MockMedicationApiClient),
+            medication_client: MedicationClient = Depends(MedicationApiClient),
     ):
         self.inventory_repo = inventory_repo
         self.pharmacy_repo = pharmacy_repo

@@ -95,3 +95,14 @@ export interface CreateMedicationRequest {
     purchase_price: number;
     manufacturer_id: number;
 }
+
+export interface SaleItemDto {
+    medication_id: number
+    quantity: number
+    unit_price: number
+}
+
+export interface MedicationSaleRequest {
+    sale_items: SaleItemDto[]
+}
+
