@@ -17,8 +17,8 @@ class MedicationApiClient(MedicationClient):
     def get_medications_by_ids(self, ids: list[int]) -> list[MedicationDto]:
         if not ids:
             return []
-        query_params = {"ids": ','.join(map(str, ids))}
-        response = self.client.get("/medications", params=query_params)
+        query_params = [("ids", id) for id in ids]
+        response = self.client.get("/medications/", params=query_params)
         response.raise_for_status()
         data = response.json()
         return [MedicationDto.from_json(json) for json in data]

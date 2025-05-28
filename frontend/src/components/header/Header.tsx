@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AppBar, Toolbar, Box, Typography } from '@mui/material';
 import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   endComponent?: React.ReactNode;
@@ -44,7 +45,20 @@ export const Header: React.FC<HeaderProps> = ({ endComponent }) => {
           alignItems: 'center',
         }}
       >
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box
+          component={Link}
+          to="/"
+          display="flex"
+          alignItems="center"
+          gap={1}
+          sx={{
+            textDecoration: 'none',
+            color: 'inherit',
+            '&:hover': {
+              opacity: 0.9
+            }
+          }}
+        >
           <LocalPharmacyIcon fontSize="large" />
           <Typography variant="h6" fontWeight={700} letterSpacing={1}>
             [LOGO]

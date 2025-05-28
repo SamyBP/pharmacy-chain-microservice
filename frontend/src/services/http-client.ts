@@ -25,16 +25,29 @@ export interface HttpClient {
 	put<T, R>(url: string, payload: T, options?: Optional<RequestOptions>): Promise<R>
 	patch<T, R>(url: string, payload: T, options?: Optional<RequestOptions>): Promise<R>
 	delete(url: string, options?: Optional<RequestOptions>): Promise<unknown>
+	multipart<T, R>(url: string, payload: T, files: File[], options?: RequestOptions): Promise<R>
 }
 
 const defaultRequestOptions = { headers: null, query: null, withAuth: false }
+
+function getToken() {
+	const json = sessionStorage.getItem('auth')
+
+	if (!json) {
+		throw { error: "no valid auth scheme available" } as HttpException
+	}
+
+	const auth: Optional<TokenDto> = JSON.parse(json)
+	return auth?.token
+}
 
 export const http: HttpClient = {
 	get: <T>(url: string, options: RequestOptions = defaultRequestOptions) => _request("GET", url, null, options).then(_handleHttpErorr<T>),
 	post: <T, R>(url: string, payload: T, options: RequestOptions = defaultRequestOptions) => _request("POST", url, payload, options).then(_handleHttpErorr<R>),
 	put: <T, R>(url: string, payload: T, options: RequestOptions = defaultRequestOptions) => _request("PUT", url, payload, options).then(_handleHttpErorr<R>),
 	patch: <T, R>(url: string, payload: T, options: RequestOptions = defaultRequestOptions) => _request("PATCH", url, payload, options).then(_handleHttpErorr<R>),
-	delete: (url: string, options: RequestOptions = defaultRequestOptions) => _request("DELETE", url, null, options).then(_handleHttpErorr)
+	delete: (url: string, options: RequestOptions = defaultRequestOptions) => _request("DELETE", url, null, options).then(_handleHttpErorr),
+	multipart: _multipart
 }
 
 
@@ -88,6 +101,37 @@ async function _request(method: string, url: string, body: unknown = null, optio
 	}
 
 	return fetch(endpoint, requestInit)
+}
+
+async function _multipart<T, R>(
+	url: string,
+	payload: T,
+	files: File[],
+	options?: RequestOptions
+): Promise<R> {
+	const formData = new FormData();
+
+	// Add JSON payload as string
+	formData.append('payload', JSON.stringify(payload));
+
+	// Add files
+	files.forEach(file => {
+		formData.append('images', file);
+	});
+
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			...(options?.withAuth ? { Authorization: `Bearer ${getToken()}` } : {}),
+		},
+		body: formData
+	});
+
+	if (!response.ok) {
+		throw new Error(await response.text());
+	}
+
+	return response.json();
 }
 
 async function _handleHttpErorr<R>(response: Response): Promise<R> {

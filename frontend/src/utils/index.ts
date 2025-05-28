@@ -15,6 +15,16 @@ export function getPathBasedOnRole(role: UserRole): string {
     return rolePaths[role]
 }
 
+export function getMedicationImageFullUrl(shortUrl: string): string {
+    return `http://localhost:8002/${shortUrl}`
+}
+
+export function getExportFilename(): string {
+    const timestamp = Math.floor(Date.now() / 1000)
+    return `file_${timestamp}`
+}
+
+
 export interface ErrorHandler {
     getErrorMessage: (error: unknown) => string
 }

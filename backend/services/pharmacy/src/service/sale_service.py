@@ -15,7 +15,7 @@ from src.domain.validations.exceptions import (
 )
 from src.repository.inventory_repo import InventoryRepository
 from src.repository.sale_repo import SaleRepository
-from src.service.medication_api_client import MockMedicationApiClient
+from src.service.medication_api_client import MedicationApiClient
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -26,7 +26,7 @@ class SaleService:
         self,
         inventory_repo: AbstractInventoryRepository = Depends(InventoryRepository),
         sale_repo: AbstractSaleRepository = Depends(SaleRepository),
-        medication_client: MedicationClient = Depends(MockMedicationApiClient),
+        medication_client: MedicationClient = Depends(MedicationApiClient),
     ):
         self.inventory_repo = inventory_repo
         self.sale_repo = sale_repo

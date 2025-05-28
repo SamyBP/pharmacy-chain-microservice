@@ -21,7 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export interface MenuItem {
   id: string;
@@ -114,11 +114,26 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <MenuIcon />
             </IconButton>
             
-            {/* Logo */}
-            <LocalPharmacyIcon fontSize="large" />
-            <Typography variant="h6" fontWeight={700} letterSpacing={1}>
-              [LOGO]
-            </Typography>
+            {/* Logo with Link */}
+            <Box
+              component={Link}
+              to="/"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                textDecoration: 'none',
+                color: 'inherit',
+                '&:hover': {
+                  opacity: 0.9
+                }
+              }}
+            >
+              <LocalPharmacyIcon fontSize="large" />
+              <Typography variant="h6" fontWeight={700} letterSpacing={1}>
+                [LOGO]
+              </Typography>
+            </Box>
           </Box>
 
           <Box>

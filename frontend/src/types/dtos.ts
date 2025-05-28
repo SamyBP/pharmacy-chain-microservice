@@ -49,3 +49,49 @@ export interface CompleteRegistrationDto {
     notification_preference: NotificationPreference
 }
 
+
+export interface ManufacturerDto {
+    id: number
+    name: string
+    contact_info: string
+}
+
+export interface MedicationImageDto {
+    id: number
+    image_url: string
+    alt_text: string
+}
+
+export interface MedicationDto {
+    id: number
+    name: string
+    description: string
+    manufacturer: ManufacturerDto
+    images: MedicationImageDto[]
+}
+
+export interface MostSoldMedicationDto {
+    medication_id: number
+    name: string
+    quantity: number
+    manufacturer: ManufacturerDto
+}
+
+export interface SaleTrendDto {
+    sale_date: string
+    total_sales_amount: number
+    number_of_sales: number
+}
+
+export interface RegisterInventoryRequest {
+    medication_id: number;
+    quantity?: number;
+    expiration_date?: string;
+}
+
+export interface CreateMedicationRequest {
+    name: string;
+    description: string;
+    purchase_price: number;
+    manufacturer_id: number;
+}

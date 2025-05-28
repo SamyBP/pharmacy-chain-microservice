@@ -86,6 +86,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <Button
             variant="outlined"
             fullWidth
+            onClick={() => window.location.href = '/discover-medications'}
             sx={{
               color: 'primary.light',
               borderColor: 'primary.light',

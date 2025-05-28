@@ -6,6 +6,11 @@ import {
   NotificationsProvider,
 } from '@toolpad/core/useNotifications';
 import { PharmacyProvider } from './contexts/PharmacyContext.tsx';
+import { MedicationProvider } from './contexts/MedicationContext.tsx';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
+
 
 const theme = createTheme({
   palette: {
@@ -22,13 +27,17 @@ const theme = createTheme({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-        <NotificationsProvider>
-          <PharmacyProvider>
-            <App />
-          </PharmacyProvider>
-        </NotificationsProvider>
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+          <NotificationsProvider>
+            <PharmacyProvider>
+              <MedicationProvider>
+                <App />
+              </MedicationProvider>
+            </PharmacyProvider>
+          </NotificationsProvider>
+      </ThemeProvider>
+    </LocalizationProvider>
   </StrictMode>,
 )

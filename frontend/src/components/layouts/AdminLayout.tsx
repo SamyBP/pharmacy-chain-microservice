@@ -1,15 +1,19 @@
 import { AdminHeader } from "@/components/header/AdminHeader";
 import { userService } from "@/services/user-service";
+import { csvFileService, docxFileService } from "@/services/file-service";
 import type { InviteUserDto, UserDto } from "@/types/dtos";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Box, Chip, Container, IconButton, MenuItem, Modal, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, Chip, Container, IconButton, MenuItem, Modal, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ActionButton } from "../common/ActionButton";
 import { useHandler } from "@/hooks/use-handler";
 import { useNotifier } from "@/hooks/use-notifier";
 import { usePharmacies } from "@/hooks/use-pharmacies";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import DescriptionIcon from '@mui/icons-material/Description';
+
 
 export default function AdminLayout() {
 	const [users, setUsers] = useState<UserDto[]>([]);
@@ -79,10 +83,10 @@ export default function AdminLayout() {
 
 		await withErrorHandling(async () => {
 			const email = selectedUser.email
-			const updatedUser: UserDto =  await userService.updateUser(selectedUser.id, payload)
+			const updatedUser: UserDto = await userService.updateUser(selectedUser.id, payload)
 			notifier.success(`Succesfully updated user ${email}`)
-			setUsers(prevUsers => prevUsers.map(user => 
-            user.id === updatedUser.id ? updatedUser : user
+			setUsers(prevUsers => prevUsers.map(user =>
+				user.id === updatedUser.id ? updatedUser : user
 			))
 		})
 
@@ -113,6 +117,14 @@ export default function AdminLayout() {
 		})
 	};
 
+	const handleUserExport = (type: 'CSV' | 'DOCX') => {
+		if (type === 'CSV') {
+			csvFileService.export(users, 'users-report');
+		} else {
+			docxFileService.export(users, 'users-report');
+		}
+	};
+
 	return (
 		<>
 			<Box
@@ -137,6 +149,7 @@ export default function AdminLayout() {
 				<AdminHeader />
 
 				<Container
+					id="adminDashboard"
 					maxWidth="lg"
 					sx={{
 						position: 'relative',
@@ -380,23 +393,23 @@ export default function AdminLayout() {
 									))}
 								</TextField>
 								<TextField
-										fullWidth
-										select
-										label="Pharmacy"
-										name="pharmacy_id"
-										value={inviteForm.pharmacy_id}
-										onChange={handleInviteChange}
-										margin="normal"
-										required
+									fullWidth
+									select
+									label="Pharmacy"
+									name="pharmacy_id"
+									value={inviteForm.pharmacy_id}
+									onChange={handleInviteChange}
+									margin="normal"
+									required
 								>
-										{pharmacies.map((pharmacy) => (
-												<MenuItem key={pharmacy.id} value={pharmacy.id}>
-														{pharmacy.name}
-												</MenuItem>
-										))}
+									{pharmacies.map((pharmacy) => (
+										<MenuItem key={pharmacy.id} value={pharmacy.id}>
+											{pharmacy.name}
+										</MenuItem>
+									))}
 								</TextField>
 							</Box>
-							
+
 							<ActionButton fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleInviteSubmit}>
 								Send Invite
 							</ActionButton>
@@ -500,6 +513,59 @@ export default function AdminLayout() {
 				</Paper>
 			</Modal>
 
+			{/* Export Users Section */}
+			<Box
+				id="export-users"
+				sx={{
+					py: 6,
+					backgroundColor: 'white',
+					position: 'relative',
+					zIndex: 2
+				}}
+			>
+				<Container maxWidth="sm">
+					<Typography
+						variant="h5"
+						gutterBottom
+						fontWeight={600}
+						textAlign="center"
+						color="primary"
+						mb={4}
+					>
+						Export Users
+					</Typography>
+					<Box
+						sx={{
+							display: 'flex',
+							justifyContent: 'center',
+							gap: 3
+						}}
+					>
+						<Button
+							variant="contained"
+							onClick={() => handleUserExport('CSV')}
+							startIcon={<FileDownloadIcon />}
+							sx={{
+								minWidth: 150,
+								height: '48px'
+							}}
+						>
+							Export as CSV
+						</Button>
+						<Button
+							variant="outlined"
+							onClick={() => handleUserExport('DOCX')}
+							startIcon={<DescriptionIcon />}
+							sx={{
+								minWidth: 150,
+								height: '48px'
+							}}
+						>
+							Export as DOCX
+						</Button>
+					</Box>
+				</Container>
+			</Box>
 		</>
 	);
 }
