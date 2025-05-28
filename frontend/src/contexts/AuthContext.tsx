@@ -1,6 +1,8 @@
 import type { TokenDto, UserProfile } from "@/types/dtos"
 import type { Optional } from "@/types/utils"
+import { getPathBasedOnRole } from "@/utils"
 import { createContext, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 
 export interface AuthState {
@@ -17,6 +19,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [auth, setAuth] = useState<Optional<TokenDto>>(null)
     const [user, setUser] = useState<Optional<UserProfile>>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate()
 
     useEffect(() => {
         const storedAuth = sessionStorage.getItem('auth')
@@ -46,8 +49,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const login = (auth: TokenDto, user: UserProfile) => {
         sessionStorage.setItem('auth', JSON.stringify(auth))
         sessionStorage.setItem('user', JSON.stringify(user))
+        
         setAuth(auth)
         setUser(user)
+
+        const redirectPath = getPathBasedOnRole(user.info.role)
+        navigate(redirectPath)
     }
 
     const logout = () => {

@@ -1,10 +1,12 @@
-import { Box, Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from "@mui/material";
 import { AdminHeader } from "@/components/header/AdminHeader";
-import { useEffect, useState } from "react";
-import type { UserDto } from "@/types/dtos";
 import { userService } from "@/services/user-service";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
+import type { UserDto } from "@/types/dtos";
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Box, Chip, Container, IconButton, MenuItem, Modal, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { ActionButton } from "../common/ActionButton";
 
 export default function AdminLayout() {
 	const [users, setUsers] = useState<UserDto[]>([]);
@@ -46,9 +48,46 @@ export default function AdminLayout() {
 		count
 	}));
 
+	const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+	const [editForm, setEditForm] = useState({ name: '', phone_number: '', role: '' });
+	const [openModal, setOpenModal] = useState(false);
+
+	const handleRowClick = (user: UserDto) => {
+		setSelectedUser(user);
+		setEditForm({ name: user.name, phone_number: user.phone_number, role: user.role });
+		setOpenModal(true);
+	};
+
+	const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target;
+		setEditForm((prev) => ({ ...prev, [name]: value }));
+
+	};
+
+	const handleEditSubmit = (e: React.FormEvent) => {
+		e.preventDefault()
+		setOpenModal(false)
+	}
+
+	const handleDelete = async (user: UserDto) => {
+		console.log("Deleting user:", user);
+		await userService.deleteUser(user.id)
+	};
+
+	const [inviteForm, setInviteForm] = useState({ email: '', role: 'EMPLOYEE' });
+	const handleInviteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target;
+		setInviteForm((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const handleInviteSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		console.log("Inviting user:", inviteForm);
+		// submit invite logic
+	};
+
 	return (
 		<>
-			{/* Hero Section with Charts */}
 			<Box
 				sx={{
 					minHeight: '90vh',
@@ -70,13 +109,12 @@ export default function AdminLayout() {
 			>
 				<AdminHeader />
 
-				{/* Charts Container */}
 				<Container
 					maxWidth="lg"
 					sx={{
 						position: 'relative',
 						zIndex: 2,
-						mt: 8 // Account for header
+						mt: 8
 					}}
 				>
 					<Box
@@ -85,7 +123,6 @@ export default function AdminLayout() {
 						flexDirection={{ xs: 'column', md: 'row' }}
 						justifyContent="center"
 					>
-						{/* Role Distribution Chart */}
 						<Paper
 							elevation={8}
 							sx={{
@@ -118,7 +155,6 @@ export default function AdminLayout() {
 							</Box>
 						</Paper>
 
-						{/* Notification Preference Chart */}
 						<Paper
 							elevation={8}
 							sx={{
@@ -203,16 +239,12 @@ export default function AdminLayout() {
 									{users.map((user) => (
 										<TableRow
 											key={user.id}
-											sx={{
-												'&:hover': {
-													backgroundColor: '#f5f5f5'
-												}
-											}}
+											hover
+											sx={{ cursor: 'pointer' }}
+											onClick={() => handleRowClick(user)}
 										>
 											<TableCell>{user.id}</TableCell>
-											<TableCell sx={{ fontWeight: 500 }}>
-												{user.name}
-											</TableCell>
+											<TableCell sx={{ fontWeight: 500 }}>{user.name}</TableCell>
 											<TableCell>{user.email}</TableCell>
 											<TableCell>{user.phone_number}</TableCell>
 											<TableCell>
@@ -223,10 +255,29 @@ export default function AdminLayout() {
 												/>
 											</TableCell>
 											<TableCell>
-												<Chip
-													label={user.notification_preference.toUpperCase()}
-													size="small"
-												/>
+												<Box
+													sx={{
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'space-between',
+														width: '140px',
+													}}
+												>
+													<Chip
+														label={user.notification_preference.toUpperCase()}
+														size="small"
+													/>
+													<IconButton
+														size="small"
+														color="error"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleDelete(user);
+														}}
+													>
+														<DeleteIcon />
+													</IconButton>
+												</Box>
 											</TableCell>
 										</TableRow>
 									))}
@@ -245,6 +296,160 @@ export default function AdminLayout() {
 					</Paper>
 				</Container>
 			</Box>
+
+			{/* Invite form section */}
+			<Box id="invite"
+				sx={{
+					py: 6,
+					backgroundImage: "linear-gradient(54deg,rgba(39, 44, 48, 1) 63%, rgba(94, 89, 97, 1) 99%);",
+					position: 'relative',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					overflow: 'hidden',
+					'&::before': {
+						content: '""',
+						position: 'absolute',
+						inset: 0,
+						backgroundColor: 'rgba(0,0,0,0.3)',
+						zIndex: 1,
+					},
+				}}
+			>
+				<Container maxWidth="sm" sx={{ zIndex: 1000 }}>
+					<Typography variant="h5" gutterBottom fontWeight={600} textAlign="center" color="primary.light">
+						Invite a New User
+					</Typography>
+					<Paper sx={{ p: 4, borderRadius: 2, backgroundColor: 'primary.light' }}>
+						<Box>
+							<TextField
+								fullWidth
+								label="Email"
+								name="email"
+								value={inviteForm.email}
+								onChange={handleInviteChange}
+								margin="normal"
+								required
+							/>
+							<TextField
+								fullWidth
+								select
+								label="Role"
+								name="role"
+								value={inviteForm.role}
+								onChange={handleInviteChange}
+								margin="normal"
+								required
+							>
+								{["ADMIN", "MANAGER", "EMPLOYEE"].map((role) => (
+									<MenuItem key={role} value={role}>
+										{role}
+									</MenuItem>
+								))}
+							</TextField>
+							<ActionButton fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleInviteSubmit}>
+								Send Invite
+							</ActionButton>
+						</Box>
+					</Paper>
+				</Container>
+			</Box>
+
+			<Modal
+				open={openModal}
+				onClose={() => setOpenModal(false)}
+				sx={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+				BackdropProps={{
+					sx: {
+						backgroundColor: 'rgba(0, 0, 0, 0.7)',
+						transition: 'opacity 0.3s ease-in-out',
+					}
+				}}
+			>
+				<Paper
+					sx={{
+						width: '60vw',
+						height: '70vh',
+						display: 'flex',
+						flexDirection: 'column',
+						position: 'relative',
+						outline: 'none',
+						transform: openModal ? 'scale(1)' : 'scale(0.8)',
+						opacity: openModal ? 1 : 0,
+						transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+					}}
+				>
+					{/* Modal Header */}
+					<Box
+						sx={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							p: 3,
+							borderBottom: '1px solid',
+							borderColor: 'divider',
+						}}
+					>
+						<Typography variant="h5" component="h2">
+							Edit User: {selectedUser?.name}
+						</Typography>
+						<IconButton onClick={() => setOpenModal(false)}>
+							<CloseIcon />
+						</IconButton>
+					</Box>
+
+					{/* Modal Content */}
+					<Box
+						sx={{
+							flex: 1,
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							p: 3,
+						}}
+					>
+						<Box style={{ width: '100%', maxWidth: '400px' }}>
+							<Stack spacing={3}>
+								<TextField
+									fullWidth
+									label="Name"
+									name="name"
+									value={editForm.name}
+									onChange={handleEditChange}
+									variant="outlined"
+								/>
+								<TextField
+									fullWidth
+									label="Phone Number"
+									name="phone_number"
+									value={editForm.phone_number}
+									onChange={handleEditChange}
+									variant="outlined"
+								/>
+								<ActionButton
+									variant="contained"
+									size="large"
+									fullWidth
+									sx={{
+										mt: 2,
+										fontSize: '16px',
+										textTransform: 'none',
+										height: '48px',
+									}}
+									onClick={handleEditSubmit}
+								>
+									Save Changes
+								</ActionButton>
+							</Stack>
+						</Box>
+					</Box>
+				</Paper>
+			</Modal>
+
 		</>
 	);
 }

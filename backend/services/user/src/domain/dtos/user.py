@@ -24,10 +24,7 @@ class UpdateUserRequest(BaseModel):
     phone_number: Annotated[Optional[str], AfterValidator(is_phone_number_valid)] = (
         Field(default=None)
     )
-    role: Annotated[Optional[str], AfterValidator(is_role_valid)] = Field(default=None)
-    notification_preference: Annotated[
-        Optional[str], AfterValidator(is_notification_preference_valid)
-    ] = Field(default=None)
+    name: str
 
 
 class UserProfileDto(BaseModel):

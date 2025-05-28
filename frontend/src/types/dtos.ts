@@ -1,4 +1,4 @@
-import type { NotificationPreference, UserRole } from "./utils"
+import type { NotificationPreference, Optional, UserRole } from "@/types/utils"
 
 export interface TokenDto {
     token: string
@@ -24,4 +24,9 @@ export interface UserDto {
 export interface UserProfile {
     info: UserDto
     pharmacies: number[]
+}
+
+export interface UpdateUserDto {
+    phone_number: Optional<string>
+    name: Optional<string>
 }

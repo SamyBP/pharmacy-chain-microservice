@@ -1,5 +1,4 @@
 import { useAuth } from '@/hooks/use-auth';
-import { isHttpException } from '@/services/http-client';
 import { userService } from '@/services/user-service';
 import { Close as CloseIcon } from '@mui/icons-material';
 import {
@@ -13,6 +12,9 @@ import {
   Typography
 } from '@mui/material';
 import React, { useState } from 'react';
+import { ActionButton } from '../common/ActionButton';
+import { useNotifier } from '@/hooks/use-notifier';
+import { errorHandler } from '@/utils';
 
 interface HeroSectionProps {
   discoverButtonText?: string,
@@ -27,6 +29,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth()
+  const { notifier } = useNotifier()
+
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => {
@@ -44,15 +48,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       const token = await userService.getAuthToken(formData)
       const user = await userService.getUserProfile(token.token)
       login(token, user)
-      console.log(token)
+      notifier.success("Succesfully logged in")
     } catch (error: unknown) {
-      if (isHttpException(error)) {
-        console.log(error.error)
-      } else if (typeof error === "object" && error !== null && "message" in error) {
-        console.log(error.message) 
-      } else {
-        console.log("what is going on here????")
-      }
+      const errorMessage = errorHandler.getErrorMessage(error)
+      notifier.error(errorMessage)
     }
 
     handleCloseModal();
@@ -184,7 +183,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               p: 3,
             }}
           >
-            <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '400px' }}>
+            <Box style={{ width: '100%', maxWidth: '400px' }}>
               <Stack spacing={3}>
                 <TextField
                   label="Email"
@@ -204,11 +203,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   fullWidth
                   variant="outlined"
                 />
-                <Button
+                <ActionButton
                   type="submit"
                   variant="contained"
                   size="small"
                   fullWidth
+                  onClick={handleLogin}
                   sx={{
                     mt: 2,
                     fontSize: '16px',
@@ -217,9 +217,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   }}
                 >
                   Login
-                </Button>
+                </ActionButton>
               </Stack>
-            </form>
+            </Box>
           </Box>
         </Paper>
       </Modal>

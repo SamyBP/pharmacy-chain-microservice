@@ -85,11 +85,8 @@ class UserService:
         if payload.phone_number is not None:
             attrs_to_update["phone_number"] = payload.phone_number
 
-        if payload.role is not None:
-            attrs_to_update["role"] = payload.role
-
-        if payload.notification_preference is not None:
-            attrs_to_update["notification_preference"] = payload.notification_preference
+        if payload.name is not None:
+            attrs_to_update["name"] = payload.role
 
         updated_user = self.user_repo.save(user_to_update, **attrs_to_update)
         return UserOut.model_validate(updated_user)

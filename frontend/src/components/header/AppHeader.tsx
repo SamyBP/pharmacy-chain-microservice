@@ -1,44 +1,61 @@
-import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { getAcronym } from '@/utils';
+import { Logout as LogoutIcon } from '@mui/icons-material';
+import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   AppBar,
-  Toolbar,
+  Avatar,
   Box,
-  Typography,
-  IconButton,
+  Divider,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
+  Stack,
+  Toolbar,
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export interface MenuItem {
   id: string;
   label: string;
   icon?: React.ReactNode;
   onClick?: () => void;
-  divider?: boolean; // Add divider after this item
+  divider?: boolean;
 }
 
 interface AppHeaderProps {
-  endComponent?: React.ReactNode;
   menuItems?: MenuItem[];
   menuWidth?: number;
+  isBlured?: boolean
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({ 
-  endComponent, 
   menuItems = [],
-  menuWidth = 280 
+  menuWidth = 280,
+  isBlured = false
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { logout, user} = useAuth();
+  const navigate = useNavigate()
+
+  if (!user) {
+      navigate("/")
+      return
+  }
+
+  const backdropFilterStyle = isBlured ? 'blur(20px)' : 'none'
 
   useEffect(() => {
+
     const onScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -54,7 +71,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     if (item.onClick) {
       item.onClick();
     }
-    setMenuOpen(false); // Close menu after clicking an item
+    setMenuOpen(false);
   };
 
   return (
@@ -64,11 +81,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         elevation={scrolled ? 4 : 0}
         sx={{
           overflow: "hidden",
-          zIndex: 1300, // always on top (above modal etc)
+          zIndex: 1300,
           backgroundColor: scrolled
             ? 'rgba(255, 255, 255, 0.75)'
-            : 'transparent', // semi-transparent hero gradient base color
-          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+            : 'transparent',
+          backdropFilter: scrolled ? 'blur(20px)' : backdropFilterStyle,
           color: scrolled ? 'primary.main' : 'primary.light',
           transition: 'background-color 0.3s ease, color 0.3s ease, backdrop-filter 0.3s ease',
         }}
@@ -104,7 +121,26 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             </Typography>
           </Box>
 
-          <Box>{endComponent}</Box>
+          <Box>
+            <Box display='flex' alignItems='center' gap={4}>
+              <Tooltip title="Logout">
+                  <IconButton
+                    onClick={logout}
+                    size="small"
+                    sx={{
+                      color: 'inherit',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                      },
+                      gap:1
+                    }}
+                  >
+                    Logout
+                    <LogoutIcon />
+                  </IconButton>
+              </Tooltip>
+            </Box>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -126,17 +162,32 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             pt: 2,
           }}
           role="presentation"
-        >
-          {/* Menu Header */}
-          <Box sx={{ px: 2, pb: 2 }}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <LocalPharmacyIcon color="primary" fontSize="large" />
-              <Typography variant="h6" fontWeight={700} color="primary">
-                [LOGO]
-              </Typography>
-            </Box>
+        >         
+          <Box sx={{ px: 2, pb: 2}}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Avatar
+                sx={{
+                width: 36,
+                height: 36,
+                bgcolor: 'primary.main',
+                fontSize: 16
+              }}
+              >
+                {getAcronym(user.info.name)}
+              </Avatar>  
+
+            
+            <Stack spacing={0.5} sx={{ color: 'grey.400', fontSize: 16 }}>
+                <Typography variant="body2">
+                  {user.info.email}
+                </Typography>
+                <Typography variant="body2">
+                  {user.info.phone_number}
+                </Typography>
+              </Stack>
+            </Stack>
           </Box>
-          
+
           <Divider />
           
           {/* Menu Items */}
