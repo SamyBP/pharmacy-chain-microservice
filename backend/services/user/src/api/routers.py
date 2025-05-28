@@ -18,6 +18,8 @@ from src.settings import INVITE_VERIFICATION_CALLBACK_URL
 
 user_router = APIRouter(prefix="/api/users", tags=["user-management"])
 
+logger = logging.getLogger("uvicorn.error")
+
 
 @user_router.post(
     "/invite",
@@ -33,6 +35,8 @@ async def invite_user(
         f"{INVITE_VERIFICATION_CALLBACK_URL}/complete-account?token={invite_token}"
     )
 
+    logger.info(verification_link)
+
     await _ctrl.send_invite_email(to=payload.email, verification_link=verification_link)
     return InviteUserSuccessResponse.from_email(email=payload.email)
 
@@ -41,7 +45,8 @@ async def invite_user(
 def complete_registration(
     payload: CompleteRegistrationRequest, _ctrl: UserService = Depends(UserService)
 ):
-    return _ctrl.register_user(payload)
+    _ctrl.register_user(payload)
+    return {"message": "Your account has been created!"}
 
 
 @user_router.get(
@@ -82,9 +87,6 @@ async def update_user(
     return updated_user
 
 
-logger = logging.getLogger("uvicorn.error")
-
-
 @user_router.get(
     "/profile", dependencies=[Depends(JWTBearer())], response_model=UserProfileDto
 )
@@ -93,5 +95,4 @@ def get_authenticated_user_profile(
 ):
     user_id = request.state.auth.id
     role = request.state.auth.role
-    logger.info(f"query params: {user_id =} {role =}")
     return _ctrl.get_user_profile_by_id(user_id, role)

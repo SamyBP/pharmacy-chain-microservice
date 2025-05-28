@@ -1,27 +1,27 @@
 import { AdminHeader } from "@/components/header/AdminHeader";
 import { userService } from "@/services/user-service";
-import type { UserDto } from "@/types/dtos";
+import type { InviteUserDto, UserDto } from "@/types/dtos";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Chip, Container, IconButton, MenuItem, Modal, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ActionButton } from "../common/ActionButton";
+import { useHandler } from "@/hooks/use-handler";
+import { useNotifier } from "@/hooks/use-notifier";
+import { usePharmacies } from "@/hooks/use-pharmacies";
 
 export default function AdminLayout() {
 	const [users, setUsers] = useState<UserDto[]>([]);
+	const { withErrorHandling } = useHandler()
+	const { notifier } = useNotifier()
+	const { pharmacies } = usePharmacies()
 
 	useEffect(() => {
-		const getAllUsers = async () => {
-			try {
-				const all = await userService.getUsers();
-				setUsers(all);
-			} catch (error: unknown) {
-				console.log(error);
-			}
-		}
-
-		getAllUsers();
+		withErrorHandling(async () => {
+			const all = await userService.getUsers();
+			setUsers(all)
+		})
 	}, []);
 
 	// Prepare data for role chart
@@ -49,12 +49,12 @@ export default function AdminLayout() {
 	}));
 
 	const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
-	const [editForm, setEditForm] = useState({ name: '', phone_number: '', role: '' });
+	const [editForm, setEditForm] = useState({ name: '', phone_number: '' });
 	const [openModal, setOpenModal] = useState(false);
 
 	const handleRowClick = (user: UserDto) => {
 		setSelectedUser(user);
-		setEditForm({ name: user.name, phone_number: user.phone_number, role: user.role });
+		setEditForm({ name: user.name, phone_number: user.phone_number });
 		setOpenModal(true);
 	};
 
@@ -64,26 +64,53 @@ export default function AdminLayout() {
 
 	};
 
-	const handleEditSubmit = (e: React.FormEvent) => {
+	const handleEditSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+		if (!selectedUser) {
+			return
+		}
+
+		const payload = {
+			phone_number: editForm.phone_number,
+			name: editForm.name
+		}
+
+		console.log(payload)
+
+		await withErrorHandling(async () => {
+			const email = selectedUser.email
+			const updatedUser: UserDto =  await userService.updateUser(selectedUser.id, payload)
+			notifier.success(`Succesfully updated user ${email}`)
+			setUsers(prevUsers => prevUsers.map(user => 
+            user.id === updatedUser.id ? updatedUser : user
+			))
+		})
+
 		setOpenModal(false)
 	}
 
-	const handleDelete = async (user: UserDto) => {
-		console.log("Deleting user:", user);
-		await userService.deleteUser(user.id)
+	const handleDelete = (user: UserDto) => {
+		withErrorHandling(async () => {
+			const username = user.name
+			await userService.deleteUser(user.id)
+			setUsers(prevUsers => prevUsers.filter(u => u.id !== user.id))
+			notifier.success(`Successfully deleted user: ${username}`)
+		})
 	};
 
-	const [inviteForm, setInviteForm] = useState({ email: '', role: 'EMPLOYEE' });
+	const [inviteForm, setInviteForm] = useState<InviteUserDto>({ email: '', role: 'EMPLOYEE', pharmacy_id: 1 });
 	const handleInviteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setInviteForm((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleInviteSubmit = (e: React.FormEvent) => {
+	const handleInviteSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log("Inviting user:", inviteForm);
-		// submit invite logic
+
+		await withErrorHandling(async () => {
+			const response = await userService.inviteUser(inviteForm)
+			notifier.info(response.message)
+		})
 	};
 
 	return (
@@ -331,22 +358,45 @@ export default function AdminLayout() {
 								margin="normal"
 								required
 							/>
-							<TextField
-								fullWidth
-								select
-								label="Role"
-								name="role"
-								value={inviteForm.role}
-								onChange={handleInviteChange}
-								margin="normal"
-								required
-							>
-								{["ADMIN", "MANAGER", "EMPLOYEE"].map((role) => (
-									<MenuItem key={role} value={role}>
-										{role}
-									</MenuItem>
-								))}
-							</TextField>
+							<Box sx={{
+								display: "flex",
+								flexDirection: "row",
+								gap: 1
+							}}>
+								<TextField
+									fullWidth
+									select
+									label="Role"
+									name="role"
+									value={inviteForm.role}
+									onChange={handleInviteChange}
+									margin="normal"
+									required
+								>
+									{["ADMIN", "MANAGER", "EMPLOYEE"].map((role) => (
+										<MenuItem key={role} value={role}>
+											{role}
+										</MenuItem>
+									))}
+								</TextField>
+								<TextField
+										fullWidth
+										select
+										label="Pharmacy"
+										name="pharmacy_id"
+										value={inviteForm.pharmacy_id}
+										onChange={handleInviteChange}
+										margin="normal"
+										required
+								>
+										{pharmacies.map((pharmacy) => (
+												<MenuItem key={pharmacy.id} value={pharmacy.id}>
+														{pharmacy.name}
+												</MenuItem>
+										))}
+								</TextField>
+							</Box>
+							
 							<ActionButton fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleInviteSubmit}>
 								Send Invite
 							</ActionButton>

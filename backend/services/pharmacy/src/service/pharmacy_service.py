@@ -3,6 +3,7 @@ import logging
 from fastapi import Depends
 from fastdbx.transactions.meta import transactional
 
+from src.domain.dtos.employee import SyncEmployeeToPharmacyDto
 from src.domain.dtos.medication import MedicationDto
 from src.domain.dtos.pharmacy import PharmacyDto
 from src.domain.internal.abstracts import (
@@ -11,6 +12,7 @@ from src.domain.internal.abstracts import (
     AbstractSaleRepository,
 )
 from src.domain.internal.medication_client import MedicationClient
+from src.domain.internal.syncs import AddEmployeeStrategy, AddManagerStrategy
 from src.repository.inventory_repo import InventoryRepository
 from src.repository.pharmacy_repo import PharmacyRepository
 from src.repository.sale_repo import SaleRepository
@@ -22,16 +24,20 @@ logger = logging.getLogger("uvicorn.error")
 class PharmacyService:
 
     def __init__(
-        self,
-        inventory_repo: AbstractInventoryRepository = Depends(InventoryRepository),
-        pharmacy_repo: AbstractPharmacyRepository = Depends(PharmacyRepository),
-        sale_repo: AbstractSaleRepository = Depends(SaleRepository),
-        medication_client: MedicationClient = Depends(MockMedicationApiClient),
+            self,
+            inventory_repo: AbstractInventoryRepository = Depends(InventoryRepository),
+            pharmacy_repo: AbstractPharmacyRepository = Depends(PharmacyRepository),
+            sale_repo: AbstractSaleRepository = Depends(SaleRepository),
+            medication_client: MedicationClient = Depends(MockMedicationApiClient),
     ):
         self.inventory_repo = inventory_repo
         self.pharmacy_repo = pharmacy_repo
         self.sale_repo = sale_repo
         self.medication_client = medication_client
+        self.syncing_strategies = {
+            "EMPLOYEE": AddEmployeeStrategy(self.pharmacy_repo),
+            "MANAGER": AddManagerStrategy(self.pharmacy_repo)
+        }
 
     def __call__(self, *args, **kwargs):
         return PharmacyService()
@@ -54,7 +60,7 @@ class PharmacyService:
 
     @transactional()
     def get_medications_from_pharmacy(
-        self, pharmacy_id: int, *, employee_id: int
+            self, pharmacy_id: int, *, employee_id: int
     ) -> list[MedicationDto]:
         medication_ids = [
             i.medication_id
@@ -72,3 +78,9 @@ class PharmacyService:
             return self.pharmacy_repo.find_all_by_manager_id(manager_id=user_id)
 
         return []
+
+    @transactional()
+    def sync_user_to_pharmacy(self, payload: SyncEmployeeToPharmacyDto):
+        sync_service = self.syncing_strategies.get(payload.role)
+        ph = self.pharmacy_repo.find_by_id(payload.pharmacy_id)
+        sync_service.sync_user(ph, user_id=payload.user_id)

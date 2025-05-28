@@ -22,9 +22,22 @@ class PharmacyApiClient(PharmacyClient):
         response.raise_for_status()
         return response.json()['ids']
 
+    def set_user_at_pharmacy(self, user_id: int, pharmacy_id, role: Role):
+        body = {
+            "user_id": user_id,
+            "pharmacy_id": pharmacy_id,
+            "role": role
+        }
+
+        response = self.client.put("/internal/employees/sync", json=body)
+        response.raise_for_status()
+
 
 class MockPharmacyApiClient(PharmacyClient):
 
     def get_pharmacies_by_user_and_role(self, user_id: int, role: Role) -> list[int]:
         random_size = random.randint(1, 4)
         return [i for i in range(random_size)]
+
+    def set_user_at_pharmacy(self, user_id: int, pharmacy_id, role: Role):
+        pass

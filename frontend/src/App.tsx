@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "@/components/common/ProtectedRoute";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { AuthProvider } from "./contexts/AuthContext";
+import CompleteAccount from "./pages/complete-account";
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route element={<LandingPage />} path="/" />
+          <Route element={<CompleteAccount />} path="/complete-account" />
           
           {/* Test protected route */}
           <Route element={<ProtectedRoute allowedUserRoles={["ADMIN"]} />}>

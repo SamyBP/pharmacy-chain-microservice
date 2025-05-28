@@ -8,6 +8,7 @@ from src.domain.dtos.validation import is_phone_number_valid, is_notification_pr
 class InviteUserRequest(BaseModel):
     email: str
     role: str
+    pharmacy_id: int
 
 
 class InviteUserSuccessResponse(BaseModel):
@@ -28,5 +29,6 @@ class InviteNotificationDto(BaseModel):
 class CompleteRegistrationRequest(BaseModel):
     invite_token: str
     password: str
+    name: str
     phone_number: Annotated[str, AfterValidator(is_phone_number_valid)]
     notification_preference: Annotated[Optional[str], AfterValidator(is_notification_preference_valid)]

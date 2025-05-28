@@ -86,7 +86,7 @@ class UserService:
             attrs_to_update["phone_number"] = payload.phone_number
 
         if payload.name is not None:
-            attrs_to_update["name"] = payload.role
+            attrs_to_update["name"] = payload.name
 
         updated_user = self.user_repo.save(user_to_update, **attrs_to_update)
         return UserOut.model_validate(updated_user)
@@ -107,8 +107,16 @@ class UserService:
                 password=hashed_pw,
                 phone_number=payload.phone_number,
                 notification_preference=payload.notification_preference,
-                **invite_token_claims,
+                name=payload.name,
+                email=invite_token_claims.get("email"),
+                role=invite_token_claims.get("role")
             )
+        )
+
+        self.pharmacy_client.set_user_at_pharmacy(
+            user_id=saved_user.id,
+            pharmacy_id=invite_token_claims.get("pharmacy_id"),
+            role=invite_token_claims.get("role")
         )
 
         return UserOut.model_validate(saved_user)

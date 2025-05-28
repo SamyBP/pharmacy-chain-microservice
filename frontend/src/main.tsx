@@ -5,6 +5,7 @@ import App from './App.tsx'
 import {
   NotificationsProvider,
 } from '@toolpad/core/useNotifications';
+import { PharmacyProvider } from './contexts/PharmacyContext.tsx';
 
 const theme = createTheme({
   palette: {
@@ -24,7 +25,9 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
         <NotificationsProvider>
-          <App />
+          <PharmacyProvider>
+            <App />
+          </PharmacyProvider>
         </NotificationsProvider>
     </ThemeProvider>
   </StrictMode>,

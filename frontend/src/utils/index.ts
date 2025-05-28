@@ -22,6 +22,7 @@ export interface ErrorHandler {
 export const errorHandler: ErrorHandler = {
     getErrorMessage: (error: unknown) => {
         if (isHttpException(error)) {
+            console.log(error)
             return String((error as { error: unknown }).error);
         } else if (typeof error === "object" && error !== null && "message" in error) {
             return String((error as { message: unknown }).message);

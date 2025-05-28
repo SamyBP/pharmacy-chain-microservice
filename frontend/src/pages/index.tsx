@@ -1,44 +1,16 @@
-import { Box, Card, CardContent, MenuItem, Select, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import pharmacyImage00 from "@/assets/images/pharmacy_00.jpg";
-import pharmacyImage01 from "@/assets/images/pharmacy_01.jpg";
-import { HeroSection } from '@/components/hero/HeroSection';
-import { Section } from '@/components/hero/Section';
 import { CarousellSwitcher } from '@/components/animations/CarouselSwitcher';
 import { Header } from '@/components/header/Header';
+import { HeroSection } from '@/components/hero/HeroSection';
+import { Section } from '@/components/hero/Section';
+import { usePharmacies } from '@/hooks/use-pharmacies';
+import {
+  CategoryRounded as CategoryIcon,
+  LocalPharmacyRounded as PharmacyIcon,
+  TrendingUpRounded as SalesIcon
+} from '@mui/icons-material';
+import { Box, Card, CardContent, MenuItem, Select, Typography } from '@mui/material';
+import React, { useState } from 'react';
 
-const managedPharmacies = [
-  {
-    title: 'CVS Pharmacy',
-    location: 'Multiple locations across the U.S.',
-    contact: '(800) 746-7287',
-    image: pharmacyImage00
-  },
-  {
-    title: 'Walgreens',
-    location: 'Available nationwide',
-    contact: '(800) 925-4733',
-    image: pharmacyImage01
-  },
-  {
-    title: 'Rite Aid',
-    location: 'Over 2,500 locations in the U.S.',
-    contact: '(800) 748-3243',
-    image: pharmacyImage00
-  },
-  {
-    title: 'Costco Pharmacy',
-    location: 'Available at most Costco warehouses',
-    contact: '(800) 607-6861',
-    image: pharmacyImage01
-  },
-  {
-    title: 'Independent Pharmacies',
-    location: 'Various local communities',
-    contact: 'Contact local store',
-    image: pharmacyImage00
-  },
-];
 
 const translations = {
   en: {
@@ -49,9 +21,9 @@ const translations = {
       account: "Access your account"
     },
     info: [
-      'We work with most major insurance providers to ensure affordable access to your medications.',
-      'Our dedicated support team is available around the clock to assist with your pharmacy needs.',
-      'Modern e-prescription system for seamless medication management and refills.',
+      'Over 10+ medication categories',
+      'Over 3+ medication providers',
+      'Over 100+ sales',
     ],
   },
   ro: {
@@ -62,9 +34,9 @@ const translations = {
       account: "Accesează-ți contul"
     },
     info: [
-      'Colaborăm cu majoritatea asiguratorilor pentru a asigura accesul la medicamente.',
-      'Echipa noastră de suport este disponibilă 24/7 pentru nevoile dumneavoastră.',
-      'Sistem modern de e-rețete pentru gestionarea ușoară a medicației.',
+      'Peste 10+ categorii de medicamente',
+      'Peste 3+ furnizori de medicamente',
+      'Peste 100+ vânzări',
     ],
   },
   fr: {
@@ -75,14 +47,18 @@ const translations = {
       account: "Accéder à votre compte"
     },
     info: [
-      'Nous travaillons avec la plupart des assureurs pour un accès abordable aux médicaments.',
-      "Notre équipe de support est disponible 24h/24 pour répondre à vos besoins.",
-      "Système d'e-prescription moderne pour la gestion et le renouvellement des médicaments.",
+      'Plus de 10+ catégories de médicaments',
+      'Plus de 3+ fournisseurs de médicaments',
+      'Plus de 100+ ventes',
     ],
   },
 };
 
-
+const getInfoWithIcons = (translations: string[]) => [
+  { text: translations[0], icon: <CategoryIcon sx={{ fontSize: 40, color: "primary.light" }} /> },
+  { text: translations[1], icon: <PharmacyIcon sx={{ fontSize: 40, color: "primary.light"}} /> },
+  { text: translations[2], icon: <SalesIcon sx={{ fontSize: 40, color: "primary.light" }} /> },
+];
 
 const createCard = (title: string, location: string, contact: string, imageUrl: string) => (
   <Card
@@ -177,8 +153,8 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang, setLang }) =>
 
 export default function LandingPage() {
   const [lang, setLang] = useState<LanguageType>('en')
+  const { pharmacies: managedPharmacies } = usePharmacies()
   const t = translations[lang]
-
 
   return (
     <>
@@ -189,7 +165,7 @@ export default function LandingPage() {
       />
       <Section title={t.managedPharmacies}>
         <CarousellSwitcher>
-          {managedPharmacies.map(p => createCard(p.title, p.location, p.contact, p.image))}
+          {managedPharmacies.map(p => createCard(p.name, p.address, p.contact, p.image))}
         </CarousellSwitcher>
       </Section>
 
@@ -198,20 +174,30 @@ export default function LandingPage() {
           autoShuffle
           interval={5000}
         >
-          {t.info.map((info, index) => (
-            <Typography
+          {getInfoWithIcons(t.info).map((item, index) => (
+            <Box
               key={index}
-              variant="h6"
-              textAlign="center"
               sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 2,
                 maxWidth: 600,
                 mx: 'auto',
-                color: 'primary.light',
-                fontWeight: 400,
               }}
             >
-              {info}
-            </Typography>
+              {item.icon}
+              <Typography
+                variant="h6"
+                textAlign="center"
+                sx={{
+                  color: 'primary.light',
+                  fontWeight: 400,
+                }}
+              >
+                {item.text}
+              </Typography>
+            </Box>
           ))}
         </CarousellSwitcher>
       </Section>
