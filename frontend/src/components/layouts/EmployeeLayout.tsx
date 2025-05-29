@@ -108,6 +108,7 @@ export default function EmployeeLayout() {
 	return (
 		<>
 			<Box
+				id="medications"
 				sx={{
 					minHeight: '90vh',
 					width: '100vw',
@@ -225,7 +226,7 @@ export default function EmployeeLayout() {
 				{/* Sale Form Section */}
 				{isLoading ? (<></>) : (
 					<Box
-						id="sale-form"
+						id="sales"
 						sx={{
 							py: 6,
 							backgroundColor: 'white',
@@ -349,7 +350,7 @@ export default function EmployeeLayout() {
 				{/* Inventory Update Section */}
 				{isLoading ? (<></>) : (
 					<Box
-						id="inventory-update"
+						id="inventory"
 						sx={{
 							py: 6,
 							position: 'relative',

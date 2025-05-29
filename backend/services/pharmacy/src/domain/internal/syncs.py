@@ -25,6 +25,7 @@ class AddEmployeeStrategy(AddUserStrategy):
         self._repo.session.add(employee)
         self._repo.session.flush()
 
+
 class AddManagerStrategy(AddUserStrategy):
     def __init__(self, repo: PharmacyRepository):
         self._repo = repo

@@ -164,7 +164,7 @@ export default function LandingPage() {
         accessAccountButtonText={t.hero.account}
       />
       <Section title={t.managedPharmacies}>
-        <CarousellSwitcher>
+        <CarousellSwitcher arrowIconColor='black'>
           {managedPharmacies.map(p => createCard(p.name, p.address, p.contact, p.image))}
         </CarousellSwitcher>
       </Section>

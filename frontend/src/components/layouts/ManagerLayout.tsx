@@ -204,6 +204,7 @@ export default function ManagerLayout() {
 	return (
 		<>
 			<Box
+				id="dashboard"
 				sx={{
 					minHeight: '90vh',
 					width: '100vw',

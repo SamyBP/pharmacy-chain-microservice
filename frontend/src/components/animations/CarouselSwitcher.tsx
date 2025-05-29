@@ -8,13 +8,15 @@ interface CarousellSwitcherProps {
   autoShuffle?: boolean;
   interval?: number;
   paginate?: number;
+  arrowIconColor?: 'white' | 'black' 
 }
 
 export const CarousellSwitcher: React.FC<CarousellSwitcherProps> = ({
   children,
   autoShuffle = false,
   interval = 10000,
-  paginate = 1
+  paginate = 1,
+  arrowIconColor = 'white'
 }) => {
   const [visibleIndices, setVisibleIndices] = useState<number[]>(
     autoShuffle 
@@ -91,7 +93,7 @@ export const CarousellSwitcher: React.FC<CarousellSwitcherProps> = ({
       }}
     >
       {!autoShuffle && !isAtStart && (
-        <IconButton onClick={handlePrev}>
+        <IconButton onClick={handlePrev} sx={{ color: arrowIconColor }}>
           <ArrowBackIosNewIcon />
         </IconButton>
       )}
@@ -111,7 +113,7 @@ export const CarousellSwitcher: React.FC<CarousellSwitcherProps> = ({
       </Fade>
 
       {!autoShuffle && !isAtEnd && (
-        <IconButton onClick={handleNext}>
+        <IconButton onClick={handleNext} sx={{ color: arrowIconColor }}>
           <ArrowForwardIosIcon />
         </IconButton>
       )}

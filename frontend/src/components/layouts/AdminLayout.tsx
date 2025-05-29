@@ -128,6 +128,7 @@ export default function AdminLayout() {
 	return (
 		<>
 			<Box
+				id="adminDashboard"
 				sx={{
 					minHeight: '90vh',
 					width: '100vw',
@@ -149,7 +150,6 @@ export default function AdminLayout() {
 				<AdminHeader />
 
 				<Container
-					id="adminDashboard"
 					maxWidth="lg"
 					sx={{
 						position: 'relative',
