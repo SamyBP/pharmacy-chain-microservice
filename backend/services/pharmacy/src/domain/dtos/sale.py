@@ -4,14 +4,14 @@ from typing import Annotated
 
 from pydantic import BaseModel, AfterValidator, ConfigDict
 
-from src.domain.validations.common import is_positive_integer
+from src.domain.validations.common import is_positive_number
 from src.domain.dtos.medication import MedicationManufacturerDto
 
 
 class SaleItemDto(BaseModel):
     medication_id: int
-    quantity: Annotated[int, AfterValidator(is_positive_integer)]
-    unit_price: Annotated[int, AfterValidator(is_positive_integer)]
+    quantity: Annotated[int, AfterValidator(is_positive_number)]
+    unit_price: Annotated[float, AfterValidator(is_positive_number)]
 
 
 class MedicationSaleRequest(BaseModel):

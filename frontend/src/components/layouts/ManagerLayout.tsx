@@ -143,7 +143,7 @@ export default function ManagerLayout() {
 		const { name, value } = e.target;
 		setCreateForm(prev => ({
 			...prev,
-			[name]: name === 'purchase_price' 
+			[name]: name === 'purchase_price'
 				? parseFloat(value) || 0
 				: name === 'manufacturer_id'
 					? parseInt(value)
@@ -305,7 +305,19 @@ export default function ManagerLayout() {
 										<LineChart data={trendChartData}>
 											<CartesianGrid strokeDasharray="3 3" />
 											<XAxis dataKey="date" />
-											<YAxis />
+											<YAxis
+												domain={() => {
+													if (!trendChartData?.length) return [0, 1000];
+													const values = trendChartData.map((d) => Number(d.amount)).filter((v) => !isNaN(v));
+													if (!values.length) return [0, 1000];
+
+													const min = Math.min(...values);
+													const max = Math.max(...values);
+													return [min - 100, max + 100];
+												}}
+												tick={{ fontSize: 12 }}
+												tickFormatter={(value) => `$${value.toLocaleString()}`}
+											/>
 											<Tooltip />
 											<Legend />
 											<Line
@@ -314,6 +326,7 @@ export default function ManagerLayout() {
 												stroke="#36454F"
 												name="Sales Amount"
 												dot={{ r: 4 }}
+												strokeWidth={2} // Slightly thicker line for better visibility
 											/>
 										</LineChart>
 									</ResponsiveContainer>
@@ -541,7 +554,7 @@ export default function ManagerLayout() {
 										value={createForm.purchase_price || ''}  // Change here to handle 0 properly
 										onChange={handleCreateChange}
 										required
-										inputProps={{ 
+										inputProps={{
 											min: 0,
 											step: "any",  // Changed from 0.01 to allow any decimal input
 											pattern: "[0-9]*[.,]?[0-9]*" // Add pattern for numeric input

@@ -7,15 +7,23 @@ interface CarousellSwitcherProps {
   children: React.ReactNode[];
   autoShuffle?: boolean;
   interval?: number;
+  paginate?: number;
 }
 
 export const CarousellSwitcher: React.FC<CarousellSwitcherProps> = ({
   children,
   autoShuffle = false,
   interval = 10000,
+  paginate = 1
 }) => {
-  const [index, setIndex] = useState(0);
+  const [visibleIndices, setVisibleIndices] = useState<number[]>(
+    autoShuffle 
+      ? [0]
+      : Array.from({ length: Math.min(paginate, children.length) }, (_, i) => i)
+  );
   const [fadeIn, setFadeIn] = useState(true);
+
+  const totalItems = children.length;
 
   useEffect(() => {
     if (!autoShuffle) return;
@@ -23,29 +31,54 @@ export const CarousellSwitcher: React.FC<CarousellSwitcherProps> = ({
     const timer = setInterval(() => {
       setFadeIn(false);
       setTimeout(() => {
-        setIndex((prevIndex) => (prevIndex + 1) % children.length);
+        setVisibleIndices(prev => {
+          const nextIndex = (prev[0] + 1) % totalItems;
+          return [nextIndex];
+        });
         setFadeIn(true);
       }, 200);
     }, interval);
 
     return () => clearInterval(timer);
-  }, [autoShuffle, children.length, interval]);
+  }, [autoShuffle, interval, totalItems]);
 
   const handlePrev = () => {
+    if (autoShuffle) return;
+    if (visibleIndices[0] <= 0) return;
+    
     setFadeIn(false);
     setTimeout(() => {
-      setIndex((prevIndex) => (prevIndex - 1 + children.length) % children.length);
+      setVisibleIndices(prev => {
+        const firstIndex = prev[0] - 1;
+        return Array.from(
+          { length: Math.min(paginate, totalItems) },
+          (_, i) => firstIndex + i
+        );
+      });
       setFadeIn(true);
     }, 200);
   };
 
   const handleNext = () => {
+    if (autoShuffle) return;
+    if (visibleIndices[visibleIndices.length - 1] >= totalItems - 1) return;
+
     setFadeIn(false);
     setTimeout(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % children.length);
+      setVisibleIndices(prev => {
+        const firstIndex = prev[0] + 1;
+        return Array.from(
+          { length: Math.min(paginate, totalItems) },
+          (_, i) => firstIndex + i
+        );
+      });
       setFadeIn(true);
     }, 200);
   };
+
+  const visibleChildren = visibleIndices.map(index => children[index]);
+  const isAtStart = visibleIndices[0] <= 0;
+  const isAtEnd = visibleIndices[visibleIndices.length - 1] >= totalItems - 1;
 
   return (
     <Box
@@ -54,22 +87,31 @@ export const CarousellSwitcher: React.FC<CarousellSwitcherProps> = ({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        gap: 2
       }}
     >
-      {!autoShuffle && (
-        <IconButton onClick={handlePrev} sx={{ mr: 1 }}>
+      {!autoShuffle && !isAtStart && (
+        <IconButton onClick={handlePrev}>
           <ArrowBackIosNewIcon />
         </IconButton>
       )}
 
       <Fade in={fadeIn} timeout={500}>
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-          {children[index]}
+        <Box 
+          sx={{ 
+            display: 'flex',
+            gap: 3,
+            justifyContent: 'center',
+            width: '100%',
+            flexWrap: 'nowrap'
+          }}
+        >
+          {visibleChildren}
         </Box>
       </Fade>
 
-      {!autoShuffle && (
-        <IconButton onClick={handleNext} sx={{ ml: 1 }}>
+      {!autoShuffle && !isAtEnd && (
+        <IconButton onClick={handleNext}>
           <ArrowForwardIosIcon />
         </IconButton>
       )}

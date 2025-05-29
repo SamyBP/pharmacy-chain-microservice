@@ -68,19 +68,20 @@ export default function EmployeeLayout() {
 		});
 	};
 
-	const handleSaleSubmit = () => {
+	const handleSaleSubmit = async () => {
 		if (saleItems.length === 0) {
 			notifier.error("Please add at least one medication to the sale");
 			return;
 		}
+		console.log("sale items", saleItems)
 
-		withErrorHandling(async () => {
+		await withErrorHandling(async () => {
 			await pharmacyService.performMedicationSale(pharmacyId, {
 				sale_items: saleItems
 			});
 			notifier.success("Sale completed successfully");
-			setSaleItems([]);
 		});
+		setSaleItems([]);
 	};
 
 	const handleInventoryDateChange = (date: Date | null) => {
@@ -150,16 +151,17 @@ export default function EmployeeLayout() {
 							mb: 4
 						}}
 					>
-						<CarousellSwitcher interval={6000}>
+						<CarousellSwitcher interval={6000} paginate={3}>
 							{medications.map((medication) => (
 								<Card
 									key={medication.id}
 									sx={{
 										borderRadius: 2,
 										height: 300,
+										minWidth: 400,
 										width: {
 											xs: '100%',
-											sm: '400px',
+											sm: '300px', // Adjusted width to fit 3 cards
 										},
 										transition: 'transform 0.3s ease, box-shadow 0.3s ease',
 										background: 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%)',
@@ -174,7 +176,7 @@ export default function EmployeeLayout() {
 								>
 									<Box
 										sx={{
-											width: '80%',
+											width: '90%',
 											height: '100%',
 											position: 'relative',
 											bgcolor: 'grey.50',
@@ -284,7 +286,11 @@ export default function EmployeeLayout() {
 											...currentSaleItem,
 											quantity: Number(e.target.value)
 										})}
-										inputProps={{ min: 1 }}
+										inputProps={{ 
+												min: 1,
+												step: 1,
+												pattern: '[0-9]*'
+										}}
 									/>
 
 									<TextField
@@ -296,7 +302,11 @@ export default function EmployeeLayout() {
 											...currentSaleItem,
 											unit_price: Number(e.target.value)
 										})}
-										inputProps={{ min: 0, step: "0.01" }}
+										inputProps={{ 
+												min: 1.0,
+												step: 1.0,
+												pattern: '[0-9]*'
+										}}
 									/>
 
 									<ActionButton
