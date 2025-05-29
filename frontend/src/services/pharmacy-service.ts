@@ -1,7 +1,8 @@
 import type { DefaultApiResponse, MedicationDto, MedicationSaleRequest, MostSoldMedicationDto, RegisterInventoryRequest, SaleTrendDto } from "@/types/dtos"
 import { http } from "./http-client"
+import { settings } from "@/utils/settings"
 
-const PHARMACY_SERVICE_BASE_API_URL = "http://localhost:8000/api"
+const PHARMACY_SERVICE_BASE_API_URL = settings.api.pharmacy
 
 export interface PharmacyService {
   getMostSoldMedcations: () => Promise<MostSoldMedicationDto[]>

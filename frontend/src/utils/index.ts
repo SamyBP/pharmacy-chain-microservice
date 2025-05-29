@@ -1,5 +1,6 @@
 import { isHttpException } from "@/services/http-client";
 import type { UserRole } from "@/types/utils";
+import { settings } from "./settings";
 
 export function getAcronym(value: string): string {
 	return value.split(/\s/).reduce((response, word) => response += word.slice(0, 1), '')
@@ -16,7 +17,7 @@ export function getPathBasedOnRole(role: UserRole): string {
 }
 
 export function getMedicationImageFullUrl(shortUrl: string): string {
-	return `http://localhost:8002/${shortUrl}`
+	return `${settings.media}/${shortUrl}`
 }
 
 export function getExportFilename(): string {

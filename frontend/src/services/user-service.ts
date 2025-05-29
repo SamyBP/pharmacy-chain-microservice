@@ -1,7 +1,8 @@
 import type { CompleteRegistrationDto, DefaultApiResponse, InviteUserDto, ObtainTokenDto, TokenDto, UpdateUserDto, UserDto, UserProfile } from "@/types/dtos";
 import { http } from "./http-client";
+import { settings } from "@/utils/settings";
 
-const USER_SERVICE_API_BASE_URL = "http://localhost:8001/api"
+const USER_SERVICE_API_BASE_URL = settings.api.user
 
 export interface UserService {
 	getAuthToken: (payload: ObtainTokenDto) => Promise<TokenDto>

@@ -1,7 +1,8 @@
 import type { CreateMedicationRequest, ManufacturerDto, MedicationDto } from "@/types/dtos";
 import { http } from "./http-client";
+import { settings } from "@/utils/settings";
 
-const MEDICATION_SERVICE_BASE_URL = "http://localhost:8002/api"
+const MEDICATION_SERVICE_BASE_URL = settings.api.medication
 
 export interface MedicationService {
   getAllMedications: () => Promise<MedicationDto[]>
